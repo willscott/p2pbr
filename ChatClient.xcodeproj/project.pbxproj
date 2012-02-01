@@ -21,6 +21,12 @@
 		934465B914D89EBF007C028A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659714D89EBF007C028A /* Foundation.framework */; };
 		934465C114D89EBF007C028A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 934465BF14D89EBF007C028A /* InfoPlist.strings */; };
 		934465C414D89EBF007C028A /* ChatClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465C314D89EBF007C028A /* ChatClientTests.m */; };
+		934465D614D8A830007C028A /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465D514D8A830007C028A /* AVFoundation.framework */; };
+		934465DB14D8D929007C028A /* StreamWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465DA14D8D929007C028A /* StreamWriter.m */; };
+		934465DF14D8E510007C028A /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465DE14D8E510007C028A /* GCDAsyncSocket.m */; };
+		934465E114D8EA3F007C028A /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E014D8EA3F007C028A /* CoreMedia.framework */; };
+		934465E514D8FA7A007C028A /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E414D8FA7A007C028A /* CFNetwork.framework */; };
+		934465E614D8FA99007C028A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E214D8F9B3007C028A /* Security.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,22 +44,30 @@
 		9344659514D89EBF007C028A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9344659714D89EBF007C028A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		9344659914D89EBF007C028A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		9344659D14D89EBF007C028A /* ChatClient-Info.plist */ = {isa = PBXFileReference; path = "ChatClient-Info.plist"; sourceTree = "<group>"; };
+		9344659D14D89EBF007C028A /* ChatClient-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ChatClient-Info.plist"; sourceTree = "<group>"; };
 		9344659F14D89EBF007C028A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		934465A114D89EBF007C028A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		934465A314D89EBF007C028A /* ChatClient-Prefix.pch */ = {isa = PBXFileReference; path = "ChatClient-Prefix.pch"; sourceTree = "<group>"; };
-		934465A414D89EBF007C028A /* CSEAppDelegate.h */ = {isa = PBXFileReference; path = CSEAppDelegate.h; sourceTree = "<group>"; };
+		934465A314D89EBF007C028A /* ChatClient-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ChatClient-Prefix.pch"; sourceTree = "<group>"; };
+		934465A414D89EBF007C028A /* CSEAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CSEAppDelegate.h; sourceTree = "<group>"; };
 		934465A514D89EBF007C028A /* CSEAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CSEAppDelegate.m; sourceTree = "<group>"; };
 		934465A814D89EBF007C028A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		934465AB14D89EBF007C028A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
-		934465AD14D89EBF007C028A /* CSEViewController.h */ = {isa = PBXFileReference; path = CSEViewController.h; sourceTree = "<group>"; };
+		934465AD14D89EBF007C028A /* CSEViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CSEViewController.h; sourceTree = "<group>"; };
 		934465AE14D89EBF007C028A /* CSEViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CSEViewController.m; sourceTree = "<group>"; };
 		934465B514D89EBF007C028A /* ChatClientTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChatClientTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		934465B614D89EBF007C028A /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		934465BE14D89EBF007C028A /* ChatClientTests-Info.plist */ = {isa = PBXFileReference; path = "ChatClientTests-Info.plist"; sourceTree = "<group>"; };
+		934465BE14D89EBF007C028A /* ChatClientTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ChatClientTests-Info.plist"; sourceTree = "<group>"; };
 		934465C014D89EBF007C028A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		934465C214D89EBF007C028A /* ChatClientTests.h */ = {isa = PBXFileReference; path = ChatClientTests.h; sourceTree = "<group>"; };
+		934465C214D89EBF007C028A /* ChatClientTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatClientTests.h; sourceTree = "<group>"; };
 		934465C314D89EBF007C028A /* ChatClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChatClientTests.m; sourceTree = "<group>"; };
+		934465D514D8A830007C028A /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		934465D914D8D929007C028A /* StreamWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamWriter.h; sourceTree = "<group>"; };
+		934465DA14D8D929007C028A /* StreamWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamWriter.m; sourceTree = "<group>"; };
+		934465DD14D8E510007C028A /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
+		934465DE14D8E510007C028A /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
+		934465E014D8EA3F007C028A /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		934465E214D8F9B3007C028A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		934465E414D8FA7A007C028A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +75,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				934465E614D8FA99007C028A /* Security.framework in Frameworks */,
+				934465E514D8FA7A007C028A /* CFNetwork.framework in Frameworks */,
+				934465E114D8EA3F007C028A /* CoreMedia.framework in Frameworks */,
+				934465D614D8A830007C028A /* AVFoundation.framework in Frameworks */,
 				9344659614D89EBF007C028A /* UIKit.framework in Frameworks */,
 				9344659814D89EBF007C028A /* Foundation.framework in Frameworks */,
 				9344659A14D89EBF007C028A /* CoreGraphics.framework in Frameworks */,
@@ -83,6 +101,11 @@
 		9344658614D89EBF007C028A = {
 			isa = PBXGroup;
 			children = (
+				934465E414D8FA7A007C028A /* CFNetwork.framework */,
+				934465E214D8F9B3007C028A /* Security.framework */,
+				934465E014D8EA3F007C028A /* CoreMedia.framework */,
+				934465DC14D8E510007C028A /* CocoaAsyncSocket */,
+				934465D514D8A830007C028A /* AVFoundation.framework */,
 				9344659B14D89EBF007C028A /* ChatClient */,
 				934465BC14D89EBF007C028A /* ChatClientTests */,
 				9344659414D89EBF007C028A /* Frameworks */,
@@ -119,6 +142,8 @@
 				934465AA14D89EBF007C028A /* MainStoryboard_iPad.storyboard */,
 				934465AD14D89EBF007C028A /* CSEViewController.h */,
 				934465AE14D89EBF007C028A /* CSEViewController.m */,
+				934465D914D8D929007C028A /* StreamWriter.h */,
+				934465DA14D8D929007C028A /* StreamWriter.m */,
 				9344659C14D89EBF007C028A /* Supporting Files */,
 			);
 			path = ChatClient;
@@ -152,6 +177,15 @@
 				934465BF14D89EBF007C028A /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		934465DC14D8E510007C028A /* CocoaAsyncSocket */ = {
+			isa = PBXGroup;
+			children = (
+				934465DD14D8E510007C028A /* GCDAsyncSocket.h */,
+				934465DE14D8E510007C028A /* GCDAsyncSocket.m */,
+			);
+			path = CocoaAsyncSocket;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -264,6 +298,8 @@
 				934465A214D89EBF007C028A /* main.m in Sources */,
 				934465A614D89EBF007C028A /* CSEAppDelegate.m in Sources */,
 				934465AF14D89EBF007C028A /* CSEViewController.m in Sources */,
+				934465DB14D8D929007C028A /* StreamWriter.m in Sources */,
+				934465DF14D8E510007C028A /* GCDAsyncSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
