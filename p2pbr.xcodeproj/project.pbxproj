@@ -12,10 +12,10 @@
 		9344659A14D89EBF007C028A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659914D89EBF007C028A /* CoreGraphics.framework */; };
 		934465A014D89EBF007C028A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9344659E14D89EBF007C028A /* InfoPlist.strings */; };
 		934465A214D89EBF007C028A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465A114D89EBF007C028A /* main.m */; };
-		934465A614D89EBF007C028A /* CSEAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465A514D89EBF007C028A /* CSEAppDelegate.m */; };
+		934465A614D89EBF007C028A /* PBRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465A514D89EBF007C028A /* PBRAppDelegate.m */; };
 		934465A914D89EBF007C028A /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 934465A714D89EBF007C028A /* MainStoryboard_iPhone.storyboard */; };
 		934465AC14D89EBF007C028A /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 934465AA14D89EBF007C028A /* MainStoryboard_iPad.storyboard */; };
-		934465AF14D89EBF007C028A /* CSEViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465AE14D89EBF007C028A /* CSEViewController.m */; };
+		934465AF14D89EBF007C028A /* PBRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465AE14D89EBF007C028A /* PBRViewController.m */; };
 		934465B714D89EBF007C028A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465B614D89EBF007C028A /* SenTestingKit.framework */; };
 		934465B814D89EBF007C028A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659514D89EBF007C028A /* UIKit.framework */; };
 		934465B914D89EBF007C028A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659714D89EBF007C028A /* Foundation.framework */; };
@@ -48,12 +48,12 @@
 		9344659F14D89EBF007C028A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		934465A114D89EBF007C028A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		934465A314D89EBF007C028A /* p2pbr-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "p2pbr-Prefix.pch"; sourceTree = "<group>"; };
-		934465A414D89EBF007C028A /* CSEAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CSEAppDelegate.h; sourceTree = "<group>"; };
-		934465A514D89EBF007C028A /* CSEAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CSEAppDelegate.m; sourceTree = "<group>"; };
+		934465A414D89EBF007C028A /* PBRAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PBRAppDelegate.h; sourceTree = "<group>"; };
+		934465A514D89EBF007C028A /* PBRAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PBRAppDelegate.m; sourceTree = "<group>"; };
 		934465A814D89EBF007C028A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		934465AB14D89EBF007C028A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
-		934465AD14D89EBF007C028A /* CSEViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CSEViewController.h; sourceTree = "<group>"; };
-		934465AE14D89EBF007C028A /* CSEViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CSEViewController.m; sourceTree = "<group>"; };
+		934465AD14D89EBF007C028A /* PBRViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PBRViewController.h; sourceTree = "<group>"; };
+		934465AE14D89EBF007C028A /* PBRViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PBRViewController.m; sourceTree = "<group>"; };
 		934465B514D89EBF007C028A /* p2pbrTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = p2pbrTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		934465B614D89EBF007C028A /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		934465BE14D89EBF007C028A /* p2pbrTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "p2pbrTests-Info.plist"; sourceTree = "<group>"; };
@@ -136,12 +136,12 @@
 		9344659B14D89EBF007C028A /* p2pbr */ = {
 			isa = PBXGroup;
 			children = (
-				934465A414D89EBF007C028A /* CSEAppDelegate.h */,
-				934465A514D89EBF007C028A /* CSEAppDelegate.m */,
+				934465A414D89EBF007C028A /* PBRAppDelegate.h */,
+				934465A514D89EBF007C028A /* PBRAppDelegate.m */,
 				934465A714D89EBF007C028A /* MainStoryboard_iPhone.storyboard */,
 				934465AA14D89EBF007C028A /* MainStoryboard_iPad.storyboard */,
-				934465AD14D89EBF007C028A /* CSEViewController.h */,
-				934465AE14D89EBF007C028A /* CSEViewController.m */,
+				934465AD14D89EBF007C028A /* PBRViewController.h */,
+				934465AE14D89EBF007C028A /* PBRViewController.m */,
 				934465D914D8D929007C028A /* StreamWriter.h */,
 				934465DA14D8D929007C028A /* StreamWriter.m */,
 				9344659C14D89EBF007C028A /* Supporting Files */,
@@ -296,8 +296,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				934465A214D89EBF007C028A /* main.m in Sources */,
-				934465A614D89EBF007C028A /* CSEAppDelegate.m in Sources */,
-				934465AF14D89EBF007C028A /* CSEViewController.m in Sources */,
+				934465A614D89EBF007C028A /* PBRAppDelegate.m in Sources */,
+				934465AF14D89EBF007C028A /* PBRViewController.m in Sources */,
 				934465DB14D8D929007C028A /* StreamWriter.m in Sources */,
 				934465DF14D8E510007C028A /* GCDAsyncSocket.m in Sources */,
 			);
