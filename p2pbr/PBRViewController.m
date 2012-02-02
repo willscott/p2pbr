@@ -124,6 +124,7 @@
 
 - (IBAction)toggle:(UISwitch *)sender {
   NSLog(@"Toggle set to %d", [sender isOn]);
+  NSLog(@"Sender is %@", sender);
   if([sender isOn]) {
     [self.writer connect];
   } else {
