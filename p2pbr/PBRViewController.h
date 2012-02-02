@@ -1,5 +1,5 @@
 //
-//  CSEViewController.h
+//  PBRViewController.h
 //  ChatClient
 //
 //  Created by willscott@gmail.com on 1/31/12.
