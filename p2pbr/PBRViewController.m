@@ -131,6 +131,15 @@
   }
 }
 
+- (StreamWriter*) writer
+{
+  if (!_writer) {
+    NSURL* url = [[NSURL alloc] initWithString:@"http://localhost:8080"];
+    _writer = [[StreamWriter alloc] initWithDestination:url];
+  }
+  return _writer;
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
   return !UIInterfaceOrientationIsPortrait(interfaceOrientation);

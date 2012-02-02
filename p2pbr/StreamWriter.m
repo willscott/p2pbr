@@ -26,7 +26,8 @@
   self = [self init];
   if (self) {
     self.tag = [[NSNumber alloc] initWithLong:0];
-    self.socket = [[GCDAsyncSocket alloc] init];
+    self.socket = [[GCDAsyncSocket alloc] initWithDelegate:self
+                                             delegateQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
     self.destination = dest;
   }
   return self;
