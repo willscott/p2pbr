@@ -104,7 +104,6 @@
 		9344658614D89EBF007C028A = {
 			isa = PBXGroup;
 			children = (
-				93F38F8A14DBA5F200783164 /* AudioToolbox.framework */,
 				934465DC14D8E510007C028A /* CocoaAsyncSocket */,
 				9344659B14D89EBF007C028A /* p2pbr */,
 				934465BC14D89EBF007C028A /* p2pbrTests */,
@@ -125,6 +124,7 @@
 		9344659414D89EBF007C028A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				93F38F8A14DBA5F200783164 /* AudioToolbox.framework */,
 				934465E414D8FA7A007C028A /* CFNetwork.framework */,
 				934465E214D8F9B3007C028A /* Security.framework */,
 				934465E014D8EA3F007C028A /* CoreMedia.framework */,
