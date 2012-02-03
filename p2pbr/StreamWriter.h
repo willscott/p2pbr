@@ -8,9 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVCaptureOutput.h>
+#import <AVFoundation/AVCaptureInput.h>
 #import "GCDAsyncSocket.h"
 
 @interface StreamWriter : NSObject <AVCaptureAudioDataOutputSampleBufferDelegate>
+
+@property (nonatomic) AudioStreamBasicDescription destinationAudioFormat;
 
 - (id)initWithDestination:(NSURL *)dest;
 

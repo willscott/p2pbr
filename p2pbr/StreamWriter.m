@@ -8,18 +8,29 @@
 
 #import "StreamWriter.h"
 
+#include <AudioToolbox/AudioToolbox.h>
+
 @interface StreamWriter()
 @property (strong, nonatomic) NSURL* destination;
 @property (strong, nonatomic) GCDAsyncSocket* socket;
 @property (strong, nonatomic) NSError* lastError;
 @property (strong, nonatomic) NSNumber* tag;
+
+@property (nonatomic) AudioConverterRef converter;
+@property (nonatomic) AudioStreamBasicDescription* sourceAudioFormat;
 @end
 
 @implementation StreamWriter
+#define AUDIO_BUFFER_SIZE 32768
+
+@synthesize destinationAudioFormat = _destinationAudioFormat;
+@synthesize sourceAudioFormat = _sourceAudioFormat;
+
 @synthesize destination = _destination;
 @synthesize socket = _socket;
 @synthesize lastError = _lastError;
 @synthesize tag = _tag;
+@synthesize converter = _converter;
 
 - (id)initWithDestination:(NSURL *)dest
 {
@@ -33,18 +44,59 @@
   return self;
 }
 
+
+static OSStatus EncoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNumberDataPackets, AudioBufferList *ioData, AudioStreamPacketDescription **outDataPacketDescription, void *inUserData)
+{
+  NSLog(@"Encoder data proc called");
+  return 0;
+}
+
+
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
   if (![self.socket isConnected]) {
     return;
   }
+
+  if (!self.sourceAudioFormat) {
+    AVCaptureInputPort *source = (AVCaptureInputPort*)[[connection inputPorts] objectAtIndex:0];
+    CMAudioFormatDescriptionRef fmt = (CMAudioFormatDescriptionRef)[source formatDescription];
+    self.sourceAudioFormat = (AudioStreamBasicDescription *)CMAudioFormatDescriptionGetStreamBasicDescription(fmt);
+  }
+
+  //NSLog(@"Format is %ld", inFormat->mFormatID);
+  
   CMBlockBufferRef dataRef = CMSampleBufferGetDataBuffer(sampleBuffer);
   size_t length = CMBlockBufferGetDataLength(dataRef);
   if (length) {
+    size_t now_length = 0;
     char* pointer;
-    CMBlockBufferGetDataPointer(dataRef, 0, nil, &length, &pointer);
-    NSData* data = [[NSData alloc] initWithBytesNoCopy:pointer length:length];
-    [self.socket writeData:data withTimeout:1000.0 tag:[self.tag longValue]];
+    CMBlockBufferGetDataPointer(dataRef, 0, nil, &now_length, &pointer);
+    if (now_length < length) {
+      NSLog(@"data lost %d < %d", now_length, length);
+    }
+
+    NSMutableData* data = [[NSMutableData alloc] initWithCapacity:AUDIO_BUFFER_SIZE];
+    void* outputBuffer = (void*)[data bytes];
+    
+    AudioBufferList fillBufList;
+    fillBufList.mNumberBuffers = 1;
+    fillBufList.mBuffers[0].mNumberChannels = self.destinationAudioFormat.mChannelsPerFrame;
+    fillBufList.mBuffers[0].mDataByteSize = AUDIO_BUFFER_SIZE;
+    fillBufList.mBuffers[0].mData = outputBuffer;
+    
+    UInt32 numPackets = 1;
+    AudioStreamPacketDescription *outputPacketDescriptions = NULL;
+    AudioConverterFillComplexBuffer(self.converter, EncoderDataProc, (__bridge void*)self, &numPackets, &fillBufList, outputPacketDescriptions);
+    
+    if (numPackets > 0) {
+      UInt32 outBytes = fillBufList.mBuffers[0].mDataByteSize;
+      [self.socket writeData:[data subdataWithRange:NSMakeRange(0, outBytes)] withTimeout:1000.0 tag:[self.tag longValue]];      
+    } else {
+      NSLog(@"Audio converter returned EOF");
+      [self disconnect];
+    }
+
   }
 }
 
@@ -63,6 +115,34 @@
   if (err) {
     NSLog(@"Error connecting: %@", err);
   }
+}
+
+- (AudioConverterRef) converter
+{
+  if (!_converter) {
+    AudioStreamBasicDescription src = *self.sourceAudioFormat;
+    AudioStreamBasicDescription dest = self.destinationAudioFormat;
+    AudioConverterNew(&src, &dest, &_converter);
+  }
+  return _converter;
+}
+
+- (AudioStreamBasicDescription) destinationAudioFormat
+{
+  // TODO(willscott): May want to dynamically adapt audio codec, not just Low def.
+  if (_destinationAudioFormat.mFormatID == 0) {
+    _destinationAudioFormat.mFormatID = kAudioFormatMPEG4AAC_LD;
+    _destinationAudioFormat.mChannelsPerFrame = self.sourceAudioFormat->mChannelsPerFrame;
+
+    // Fill out the rest of the description from the source.
+    UInt32 size = sizeof(_destinationAudioFormat);
+    AudioFormatGetProperty(kAudioFormatProperty_FormatInfo, 
+                           0,
+                           NULL,
+                           &size, 
+                           &_destinationAudioFormat);
+  }
+  return _destinationAudioFormat;
 }
 
 - (void) disconnect
