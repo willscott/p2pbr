@@ -47,7 +47,13 @@
 
 static OSStatus EncoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNumberDataPackets, AudioBufferList *ioData, AudioStreamPacketDescription **outDataPacketDescription, void *inUserData)
 {
-  NSLog(@"Encoder data proc called");
+  AudioBufferList* inputStructure = (AudioBufferList*)inUserData;
+  ioData->mBuffers[0].mData = inputStructure->mBuffers[0].mData;
+  ioData->mBuffers[0].mDataByteSize = inputStructure->mBuffers[0].mDataByteSize;
+  ioData->mBuffers[0].mNumberChannels = inputStructure->mBuffers[0].mNumberChannels;
+
+  inputStructure->mBuffers[0].mDataByteSize = 0;
+  
   return 0;
 }
 
@@ -57,7 +63,6 @@ static OSStatus EncoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
   if (![self.socket isConnected]) {
     return;
   }
-
   if (!self.sourceAudioFormat) {
     AVCaptureInputPort *source = (AVCaptureInputPort*)[[connection inputPorts] objectAtIndex:0];
     CMAudioFormatDescriptionRef fmt = (CMAudioFormatDescriptionRef)[source formatDescription];
@@ -73,24 +78,28 @@ static OSStatus EncoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     char* pointer;
     CMBlockBufferGetDataPointer(dataRef, 0, nil, &now_length, &pointer);
     if (now_length < length) {
-      NSLog(@"data lost %d < %d", now_length, length);
+      NSLog(@"data lost %luld < %lud", now_length, length);
     }
+    AudioBufferList inputStructure;
+    inputStructure.mBuffers[0].mDataByteSize = now_length;
+    inputStructure.mBuffers[0].mData = pointer;
+    inputStructure.mBuffers[0].mNumberChannels = self.sourceAudioFormat->mChannelsPerFrame;
 
-    NSMutableData* data = [[NSMutableData alloc] initWithCapacity:AUDIO_BUFFER_SIZE];
+    NSMutableData* data = [[NSMutableData alloc] initWithLength:AUDIO_BUFFER_SIZE];
     void* outputBuffer = (void*)[data bytes];
     
-    AudioBufferList fillBufList;
-    fillBufList.mNumberBuffers = 1;
-    fillBufList.mBuffers[0].mNumberChannels = self.destinationAudioFormat.mChannelsPerFrame;
-    fillBufList.mBuffers[0].mDataByteSize = AUDIO_BUFFER_SIZE;
-    fillBufList.mBuffers[0].mData = outputBuffer;
+    AudioBufferList outputStructure;
+    outputStructure.mNumberBuffers = 1;
+    outputStructure.mBuffers[0].mNumberChannels = self.destinationAudioFormat.mChannelsPerFrame;
+    outputStructure.mBuffers[0].mDataByteSize = AUDIO_BUFFER_SIZE;
+    outputStructure.mBuffers[0].mData = outputBuffer;
     
     UInt32 numPackets = 1;
     AudioStreamPacketDescription *outputPacketDescriptions = NULL;
-    AudioConverterFillComplexBuffer(self.converter, EncoderDataProc, (__bridge void*)self, &numPackets, &fillBufList, outputPacketDescriptions);
+    AudioConverterFillComplexBuffer(self.converter, EncoderDataProc, &inputStructure, &numPackets, &outputStructure, outputPacketDescriptions);
     
     if (numPackets > 0) {
-      UInt32 outBytes = fillBufList.mBuffers[0].mDataByteSize;
+      UInt32 outBytes = outputStructure.mBuffers[0].mDataByteSize;
       [self.socket writeData:[data subdataWithRange:NSMakeRange(0, outBytes)] withTimeout:1000.0 tag:[self.tag longValue]];      
     } else {
       NSLog(@"Audio converter returned EOF");

@@ -142,7 +142,7 @@
 - (StreamWriter*) writer
 {
   if (!_writer) {
-    NSURL* url = [[NSURL alloc] initWithString:@"http://128.208.7.145:8080"];
+    NSURL* url = [[NSURL alloc] initWithString:@"http://128.208.7.205:8080"];
     _writer = [[StreamWriter alloc] initWithDestination:url];
   }
   return _writer;
