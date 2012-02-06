@@ -45,6 +45,14 @@
 }
 
 
+/*
+ * AudioConverterFillComplexBuffer helper function.
+ * The converter can process multiple packets from one function call.
+ * To do so, it will repeatedly access this helper function to load
+ * it's input buffer (ioData) with additional source data until either
+ * it hits against the 'numPackets' argument passed to the original function,
+ * or this helper sets DataByteSize to 0 / returns an error.
+ */
 static OSStatus EncoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNumberDataPackets, AudioBufferList *ioData, AudioStreamPacketDescription **outDataPacketDescription, void *inUserData)
 {
   AudioBufferList* inputStructure = (AudioBufferList*)inUserData;
