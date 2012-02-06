@@ -91,6 +91,13 @@
   if ([newCaptureSession canAddInput:newAudioInput]) {
     [newCaptureSession addInput:newAudioInput];
   }
+  
+  // The export to network setup.
+  AVCaptureAudioDataOutput* audioCapture = [[AVCaptureAudioDataOutput alloc] init];
+  [audioCapture setSampleBufferDelegate:self.writer queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+  [newCaptureSession addOutput:audioCapture];
+  
+  // The local preview view.
   self.localVideo = [[AVCaptureVideoPreviewLayer alloc] initWithSession:newCaptureSession];
   CALayer *viewLayer = [self.preview layer];
   [viewLayer setMasksToBounds:YES];
@@ -101,7 +108,7 @@
   [self.localVideo setVideoGravity:AVLayerVideoGravityResizeAspect];
   
   [viewLayer insertSublayer:self.localVideo below:[[viewLayer sublayers] objectAtIndex:0]];
-
+  
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [newCaptureSession startRunning];
   });
@@ -135,7 +142,7 @@
 - (StreamWriter*) writer
 {
   if (!_writer) {
-    NSURL* url = [[NSURL alloc] initWithString:@"http://localhost:8080"];
+    NSURL* url = [[NSURL alloc] initWithString:@"http://128.208.7.205:8080"];
     _writer = [[StreamWriter alloc] initWithDestination:url];
   }
   return _writer;
