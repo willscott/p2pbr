@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVCaptureOutput.h>
 #import <AVFoundation/AVCaptureInput.h>
-#import "GCDAsyncSocket.h"
+#import "AsyncSocket.h"
 
 @interface StreamWriter : NSObject <AVCaptureAudioDataOutputSampleBufferDelegate>
 

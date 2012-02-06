@@ -23,10 +23,11 @@
 		934465C414D89EBF007C028A /* p2pbrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465C314D89EBF007C028A /* p2pbrTests.m */; };
 		934465D614D8A830007C028A /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465D514D8A830007C028A /* AVFoundation.framework */; };
 		934465DB14D8D929007C028A /* StreamWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465DA14D8D929007C028A /* StreamWriter.m */; };
-		934465DF14D8E510007C028A /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465DE14D8E510007C028A /* GCDAsyncSocket.m */; };
 		934465E114D8EA3F007C028A /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E014D8EA3F007C028A /* CoreMedia.framework */; };
 		934465E514D8FA7A007C028A /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E414D8FA7A007C028A /* CFNetwork.framework */; };
 		934465E614D8FA99007C028A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E214D8F9B3007C028A /* Security.framework */; };
+		936E489A14E0848C0021A3AF /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489714E0848C0021A3AF /* AsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489914E0848C0021A3AF /* AsyncUdpSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		93F38F8B14DBA5F200783164 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F38F8A14DBA5F200783164 /* AudioToolbox.framework */; };
 /* End PBXBuildFile section */
 
@@ -64,11 +65,13 @@
 		934465D514D8A830007C028A /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		934465D914D8D929007C028A /* StreamWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamWriter.h; sourceTree = "<group>"; };
 		934465DA14D8D929007C028A /* StreamWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamWriter.m; sourceTree = "<group>"; };
-		934465DD14D8E510007C028A /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
-		934465DE14D8E510007C028A /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		934465E014D8EA3F007C028A /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		934465E214D8F9B3007C028A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		934465E414D8FA7A007C028A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		936E489614E0848C0021A3AF /* AsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AsyncSocket.h; path = CocoaAsyncSocket/RunLoop/AsyncSocket.h; sourceTree = "<group>"; };
+		936E489714E0848C0021A3AF /* AsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncSocket.m; path = CocoaAsyncSocket/RunLoop/AsyncSocket.m; sourceTree = "<group>"; };
+		936E489814E0848C0021A3AF /* AsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AsyncUdpSocket.h; path = CocoaAsyncSocket/RunLoop/AsyncUdpSocket.h; sourceTree = "<group>"; };
+		936E489914E0848C0021A3AF /* AsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncUdpSocket.m; path = CocoaAsyncSocket/RunLoop/AsyncUdpSocket.m; sourceTree = "<group>"; };
 		93F38F8A14DBA5F200783164 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -104,7 +107,7 @@
 		9344658614D89EBF007C028A = {
 			isa = PBXGroup;
 			children = (
-				934465DC14D8E510007C028A /* CocoaAsyncSocket */,
+				936E489C14E084900021A3AF /* CococaAsyncSocket */,
 				9344659B14D89EBF007C028A /* p2pbr */,
 				934465BC14D89EBF007C028A /* p2pbrTests */,
 				9344659414D89EBF007C028A /* Frameworks */,
@@ -183,13 +186,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		934465DC14D8E510007C028A /* CocoaAsyncSocket */ = {
+		936E489C14E084900021A3AF /* CococaAsyncSocket */ = {
 			isa = PBXGroup;
 			children = (
-				934465DD14D8E510007C028A /* GCDAsyncSocket.h */,
-				934465DE14D8E510007C028A /* GCDAsyncSocket.m */,
+				936E489614E0848C0021A3AF /* AsyncSocket.h */,
+				936E489714E0848C0021A3AF /* AsyncSocket.m */,
+				936E489814E0848C0021A3AF /* AsyncUdpSocket.h */,
+				936E489914E0848C0021A3AF /* AsyncUdpSocket.m */,
 			);
-			path = CocoaAsyncSocket;
+			name = CococaAsyncSocket;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -303,7 +308,8 @@
 				934465A614D89EBF007C028A /* PBRAppDelegate.m in Sources */,
 				934465AF14D89EBF007C028A /* PBRViewController.m in Sources */,
 				934465DB14D8D929007C028A /* StreamWriter.m in Sources */,
-				934465DF14D8E510007C028A /* GCDAsyncSocket.m in Sources */,
+				936E489A14E0848C0021A3AF /* AsyncSocket.m in Sources */,
+				936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

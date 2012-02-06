@@ -12,7 +12,7 @@
 
 @interface StreamWriter()
 @property (strong, nonatomic) NSURL* destination;
-@property (strong, nonatomic) GCDAsyncSocket* socket;
+@property (strong, nonatomic) AsyncSocket* socket;
 @property (strong, nonatomic) NSError* lastError;
 @property (strong, nonatomic) NSNumber* tag;
 
@@ -37,8 +37,7 @@
   self = [self init];
   if (self) {
     self.tag = [[NSNumber alloc] initWithLong:0];
-    self.socket = [[GCDAsyncSocket alloc] initWithDelegate:self
-                                             delegateQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+    self.socket = [[AsyncSocket alloc] initWithDelegate:self];
     self.destination = dest;
   }
   return self;
