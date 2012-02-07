@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		93440A0B14E0D21900A82B95 /* TSSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 93440A0A14E0D21900A82B95 /* TSSocket.m */; };
 		9344659614D89EBF007C028A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659514D89EBF007C028A /* UIKit.framework */; };
 		9344659814D89EBF007C028A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659714D89EBF007C028A /* Foundation.framework */; };
 		9344659A14D89EBF007C028A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659914D89EBF007C028A /* CoreGraphics.framework */; };
@@ -28,6 +29,13 @@
 		934465E614D8FA99007C028A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E214D8F9B3007C028A /* Security.framework */; };
 		936E489A14E0848C0021A3AF /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489714E0848C0021A3AF /* AsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489914E0848C0021A3AF /* AsyncUdpSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		936E48A614E0BA2B0021A3AF /* build_libav.sh in Resources */ = {isa = PBXBuildFile; fileRef = 936E48A514E0BA2B0021A3AF /* build_libav.sh */; };
+		936E48AD14E0CCAF0021A3AF /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 936E48A714E0CCAF0021A3AF /* libavcodec.a */; };
+		936E48AE14E0CCAF0021A3AF /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 936E48A814E0CCAF0021A3AF /* libavdevice.a */; };
+		936E48AF14E0CCAF0021A3AF /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 936E48A914E0CCAF0021A3AF /* libavfilter.a */; };
+		936E48B014E0CCAF0021A3AF /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 936E48AA14E0CCAF0021A3AF /* libavformat.a */; };
+		936E48B114E0CCAF0021A3AF /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 936E48AB14E0CCAF0021A3AF /* libavutil.a */; };
+		936E48B214E0CCAF0021A3AF /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 936E48AC14E0CCAF0021A3AF /* libswscale.a */; };
 		93F38F8B14DBA5F200783164 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F38F8A14DBA5F200783164 /* AudioToolbox.framework */; };
 /* End PBXBuildFile section */
 
@@ -42,6 +50,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		93440A0914E0D21900A82B95 /* TSSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TSSocket.h; path = TSSocket/TSSocket.h; sourceTree = "<group>"; };
+		93440A0A14E0D21900A82B95 /* TSSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TSSocket.m; path = TSSocket/TSSocket.m; sourceTree = "<group>"; };
 		9344659114D89EBF007C028A /* p2pbr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = p2pbr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9344659514D89EBF007C028A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9344659714D89EBF007C028A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -72,6 +82,13 @@
 		936E489714E0848C0021A3AF /* AsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncSocket.m; path = CocoaAsyncSocket/RunLoop/AsyncSocket.m; sourceTree = "<group>"; };
 		936E489814E0848C0021A3AF /* AsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AsyncUdpSocket.h; path = CocoaAsyncSocket/RunLoop/AsyncUdpSocket.h; sourceTree = "<group>"; };
 		936E489914E0848C0021A3AF /* AsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncUdpSocket.m; path = CocoaAsyncSocket/RunLoop/AsyncUdpSocket.m; sourceTree = "<group>"; };
+		936E48A514E0BA2B0021A3AF /* build_libav.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_libav.sh; path = libAV/build_libav.sh; sourceTree = "<group>"; };
+		936E48A714E0CCAF0021A3AF /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = libAV/libAV/compiled/fat/lib/libavcodec.a; sourceTree = "<group>"; };
+		936E48A814E0CCAF0021A3AF /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavdevice.a; path = libAV/libAV/compiled/fat/lib/libavdevice.a; sourceTree = "<group>"; };
+		936E48A914E0CCAF0021A3AF /* libavfilter.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavfilter.a; path = libAV/libAV/compiled/fat/lib/libavfilter.a; sourceTree = "<group>"; };
+		936E48AA14E0CCAF0021A3AF /* libavformat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavformat.a; path = libAV/libAV/compiled/fat/lib/libavformat.a; sourceTree = "<group>"; };
+		936E48AB14E0CCAF0021A3AF /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavutil.a; path = libAV/libAV/compiled/fat/lib/libavutil.a; sourceTree = "<group>"; };
+		936E48AC14E0CCAF0021A3AF /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswscale.a; path = libAV/libAV/compiled/fat/lib/libswscale.a; sourceTree = "<group>"; };
 		93F38F8A14DBA5F200783164 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -80,6 +97,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				936E48AD14E0CCAF0021A3AF /* libavcodec.a in Frameworks */,
+				936E48AE14E0CCAF0021A3AF /* libavdevice.a in Frameworks */,
+				936E48AF14E0CCAF0021A3AF /* libavfilter.a in Frameworks */,
+				936E48B014E0CCAF0021A3AF /* libavformat.a in Frameworks */,
+				936E48B114E0CCAF0021A3AF /* libavutil.a in Frameworks */,
+				936E48B214E0CCAF0021A3AF /* libswscale.a in Frameworks */,
 				93F38F8B14DBA5F200783164 /* AudioToolbox.framework in Frameworks */,
 				934465E614D8FA99007C028A /* Security.framework in Frameworks */,
 				934465E514D8FA7A007C028A /* CFNetwork.framework in Frameworks */,
@@ -107,6 +130,8 @@
 		9344658614D89EBF007C028A = {
 			isa = PBXGroup;
 			children = (
+				936E48A414E0B9E60021A3AF /* libAV */,
+				936E489D14E0865B0021A3AF /* TSSocket */,
 				936E489C14E084900021A3AF /* CococaAsyncSocket */,
 				9344659B14D89EBF007C028A /* p2pbr */,
 				934465BC14D89EBF007C028A /* p2pbrTests */,
@@ -197,6 +222,29 @@
 			name = CococaAsyncSocket;
 			sourceTree = "<group>";
 		};
+		936E489D14E0865B0021A3AF /* TSSocket */ = {
+			isa = PBXGroup;
+			children = (
+				93440A0914E0D21900A82B95 /* TSSocket.h */,
+				93440A0A14E0D21900A82B95 /* TSSocket.m */,
+			);
+			name = TSSocket;
+			sourceTree = "<group>";
+		};
+		936E48A414E0B9E60021A3AF /* libAV */ = {
+			isa = PBXGroup;
+			children = (
+				936E48A714E0CCAF0021A3AF /* libavcodec.a */,
+				936E48A814E0CCAF0021A3AF /* libavdevice.a */,
+				936E48A914E0CCAF0021A3AF /* libavfilter.a */,
+				936E48AA14E0CCAF0021A3AF /* libavformat.a */,
+				936E48AB14E0CCAF0021A3AF /* libavutil.a */,
+				936E48AC14E0CCAF0021A3AF /* libswscale.a */,
+				936E48A514E0BA2B0021A3AF /* build_libav.sh */,
+			);
+			name = libAV;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -204,6 +252,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 934465C714D89EBF007C028A /* Build configuration list for PBXNativeTarget "p2pbr" */;
 			buildPhases = (
+				936E48A314E0B7B30021A3AF /* ShellScript */,
 				9344658D14D89EBF007C028A /* Sources */,
 				9344658E14D89EBF007C028A /* Frameworks */,
 				9344658F14D89EBF007C028A /* Resources */,
@@ -270,6 +319,7 @@
 				934465A014D89EBF007C028A /* InfoPlist.strings in Resources */,
 				934465A914D89EBF007C028A /* MainStoryboard_iPhone.storyboard in Resources */,
 				934465AC14D89EBF007C028A /* MainStoryboard_iPad.storyboard in Resources */,
+				936E48A614E0BA2B0021A3AF /* build_libav.sh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,6 +347,19 @@
 			shellPath = /bin/sh;
 			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 		};
+		936E48A314E0B7B30021A3AF /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "bash /Users/willscott/Documents/Code/p2pbr/libAV/build_libav.sh";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -310,6 +373,7 @@
 				934465DB14D8D929007C028A /* StreamWriter.m in Sources */,
 				936E489A14E0848C0021A3AF /* AsyncSocket.m in Sources */,
 				936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */,
+				93440A0B14E0D21900A82B95 /* TSSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -420,6 +484,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "p2pbr/p2pbr-Prefix.pch";
 				INFOPLIST_FILE = "p2pbr/p2pbr-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/libAV/libAV/compiled/fat/lib\"",
+				);
 				PRODUCT_NAME = p2pbr;
 				WRAPPER_EXTENSION = app;
 			};
@@ -431,6 +499,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "p2pbr/p2pbr-Prefix.pch";
 				INFOPLIST_FILE = "p2pbr/p2pbr-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/libAV/libAV/compiled/fat/lib\"",
+				);
 				PRODUCT_NAME = p2pbr;
 				WRAPPER_EXTENSION = app;
 			};
