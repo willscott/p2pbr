@@ -1,3 +1,12 @@
 [submodule "CocoaAsyncSocket"]
 	path = CocoaAsyncSocket
 	url = git://github.com/robbiehanson/CocoaAsyncSocket.git
+[submodule "libav"]
+	path = libav
+	url = git://github.com/libav/libav.git
+[submodule "libAV/gas"]
+	path = libAV/gas
+	url = git://github.com/yuvi/gas-preprocessor.git
+[submodule "libAV/libAV"]
+	path = libAV/libAV
+	url = git://github.com/libav/libav.git
