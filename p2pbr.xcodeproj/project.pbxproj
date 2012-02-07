@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		93440A0B14E0D21900A82B95 /* TSSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 93440A0A14E0D21900A82B95 /* TSSocket.m */; };
 		9344659614D89EBF007C028A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659514D89EBF007C028A /* UIKit.framework */; };
 		9344659814D89EBF007C028A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659714D89EBF007C028A /* Foundation.framework */; };
 		9344659A14D89EBF007C028A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659914D89EBF007C028A /* CoreGraphics.framework */; };
@@ -28,7 +29,6 @@
 		934465E614D8FA99007C028A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E214D8F9B3007C028A /* Security.framework */; };
 		936E489A14E0848C0021A3AF /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489714E0848C0021A3AF /* AsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489914E0848C0021A3AF /* AsyncUdpSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		936E48A014E086A00021A3AF /* TSSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489F14E086A00021A3AF /* TSSocket.m */; };
 		936E48A614E0BA2B0021A3AF /* build_libav.sh in Resources */ = {isa = PBXBuildFile; fileRef = 936E48A514E0BA2B0021A3AF /* build_libav.sh */; };
 		936E48AD14E0CCAF0021A3AF /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 936E48A714E0CCAF0021A3AF /* libavcodec.a */; };
 		936E48AE14E0CCAF0021A3AF /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 936E48A814E0CCAF0021A3AF /* libavdevice.a */; };
@@ -50,6 +50,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		93440A0914E0D21900A82B95 /* TSSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TSSocket.h; path = TSSocket/TSSocket.h; sourceTree = "<group>"; };
+		93440A0A14E0D21900A82B95 /* TSSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TSSocket.m; path = TSSocket/TSSocket.m; sourceTree = "<group>"; };
 		9344659114D89EBF007C028A /* p2pbr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = p2pbr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9344659514D89EBF007C028A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9344659714D89EBF007C028A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -80,8 +82,6 @@
 		936E489714E0848C0021A3AF /* AsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncSocket.m; path = CocoaAsyncSocket/RunLoop/AsyncSocket.m; sourceTree = "<group>"; };
 		936E489814E0848C0021A3AF /* AsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AsyncUdpSocket.h; path = CocoaAsyncSocket/RunLoop/AsyncUdpSocket.h; sourceTree = "<group>"; };
 		936E489914E0848C0021A3AF /* AsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncUdpSocket.m; path = CocoaAsyncSocket/RunLoop/AsyncUdpSocket.m; sourceTree = "<group>"; };
-		936E489E14E086A00021A3AF /* TSSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TSSocket.h; path = RTPSocket/TSSocket.h; sourceTree = "<group>"; };
-		936E489F14E086A00021A3AF /* TSSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TSSocket.m; path = RTPSocket/TSSocket.m; sourceTree = "<group>"; };
 		936E48A514E0BA2B0021A3AF /* build_libav.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_libav.sh; path = libAV/build_libav.sh; sourceTree = "<group>"; };
 		936E48A714E0CCAF0021A3AF /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = libAV/libAV/compiled/fat/lib/libavcodec.a; sourceTree = "<group>"; };
 		936E48A814E0CCAF0021A3AF /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavdevice.a; path = libAV/libAV/compiled/fat/lib/libavdevice.a; sourceTree = "<group>"; };
@@ -225,8 +225,8 @@
 		936E489D14E0865B0021A3AF /* TSSocket */ = {
 			isa = PBXGroup;
 			children = (
-				936E489E14E086A00021A3AF /* TSSocket.h */,
-				936E489F14E086A00021A3AF /* TSSocket.m */,
+				93440A0914E0D21900A82B95 /* TSSocket.h */,
+				93440A0A14E0D21900A82B95 /* TSSocket.m */,
 			);
 			name = TSSocket;
 			sourceTree = "<group>";
@@ -373,7 +373,7 @@
 				934465DB14D8D929007C028A /* StreamWriter.m in Sources */,
 				936E489A14E0848C0021A3AF /* AsyncSocket.m in Sources */,
 				936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */,
-				936E48A014E086A00021A3AF /* TSSocket.m in Sources */,
+				93440A0B14E0D21900A82B95 /* TSSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
