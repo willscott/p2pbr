@@ -11,8 +11,7 @@
 #include <AudioToolbox/AudioToolbox.h>
 
 @interface StreamWriter()
-@property (strong, nonatomic) NSURL* destination;
-@property (strong, nonatomic) AsyncSocket* socket;
+@property (strong, nonatomic) id <PBRAudioSink> sink;
 @property (strong, nonatomic) NSError* lastError;
 @property (strong, nonatomic) NSNumber* tag;
 
@@ -26,19 +25,17 @@
 @synthesize destinationAudioFormat = _destinationAudioFormat;
 @synthesize sourceAudioFormat = _sourceAudioFormat;
 
-@synthesize destination = _destination;
-@synthesize socket = _socket;
+@synthesize sink = _sink;
 @synthesize lastError = _lastError;
 @synthesize tag = _tag;
 @synthesize converter = _converter;
 
-- (id)initWithDestination:(NSURL *)dest
+- (id)initWithSink:(id <PBRAudioSink>)sink
 {
   self = [self init];
   if (self) {
     self.tag = [[NSNumber alloc] initWithLong:0];
-    self.socket = [[AsyncSocket alloc] initWithDelegate:self];
-    self.destination = dest;
+    self.sink = sink;
   }
   return self;
 }
@@ -67,9 +64,11 @@ static OSStatus EncoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-  if (![self.socket isConnected]) {
+  if (![self.sink isConnected]) {
     return;
   }
+  NSLog(@"Handling Sample Buffer.");
+
   if (!self.sourceAudioFormat) {
     AVCaptureInputPort *source = (AVCaptureInputPort*)[[connection inputPorts] objectAtIndex:0];
     CMAudioFormatDescriptionRef fmt = (CMAudioFormatDescriptionRef)[source formatDescription];
@@ -107,30 +106,16 @@ static OSStatus EncoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     
     if (numPackets > 0) {
       UInt32 outBytes = outputStructure.mBuffers[0].mDataByteSize;
-      [self.socket writeData:[data subdataWithRange:NSMakeRange(0, outBytes)] withTimeout:1000.0 tag:[self.tag longValue]];      
+      [self.sink pushAudioFrame:[data subdataWithRange:NSMakeRange(0, outBytes)] atOffset:outputPacketDescriptions->mStartOffset];
     } else {
       NSLog(@"Audio converter returned EOF");
-      [self disconnect];
     }
-
   }
 }
 
 - (NSNumber*) tag
 {
   return [[NSNumber alloc] initWithLong:[_tag longValue] + 1];
-}
-
-- (void) connect
-{
-  NSString* host = [self.destination host];
-  uint16_t port = [[self.destination port] intValue];
-  
-  NSError* err = nil;
-  [self.socket connectToHost:host onPort:port withTimeout:1000.0 error:&err];
-  if (err) {
-    NSLog(@"Error connecting: %@", err);
-  }
 }
 
 - (AudioConverterRef) converter
@@ -159,11 +144,6 @@ static OSStatus EncoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
                            &_destinationAudioFormat);
   }
   return _destinationAudioFormat;
-}
-
-- (void) disconnect
-{
-  [self.socket disconnectAfterWriting];
 }
 
 @end

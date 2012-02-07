@@ -11,7 +11,7 @@
 
 @interface PBRViewController()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer* localVideo;
-@property (strong, nonatomic) StreamWriter* writer;
+@property (strong, nonatomic) TSSocket* sink;
 
 - (void) didRotate:(NSNotification *)notification;
 
@@ -22,7 +22,7 @@
 @synthesize preview = _preview;
 
 @synthesize localVideo = _localVideo;
-@synthesize writer = _writer;
+@synthesize sink = _sink;
 
 - (void)didReceiveMemoryWarning
 {
@@ -94,7 +94,8 @@
   
   // The export to network setup.
   AVCaptureAudioDataOutput* audioCapture = [[AVCaptureAudioDataOutput alloc] init];
-  [audioCapture setSampleBufferDelegate:self.writer queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+  StreamWriter* audioWriter = [[StreamWriter alloc] initWithSink:self.sink];
+  [audioCapture setSampleBufferDelegate:audioWriter queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
   [newCaptureSession addOutput:audioCapture];
   
   // The local preview view.
@@ -130,22 +131,19 @@
 }
 
 - (IBAction)toggle:(UISwitch *)sender {
-  NSLog(@"Toggle set to %d", [sender isOn]);
-  NSLog(@"Sender is %@", sender);
   if([sender isOn]) {
-    [self.writer connect];
+    [self.sink connect];
   } else {
-    [self.writer disconnect];
+    [self.sink disconnect];
   }
 }
 
-- (StreamWriter*) writer
+- (TSSocket*) sink
 {
-  if (!_writer) {
-    NSURL* url = [[NSURL alloc] initWithString:@"http://128.208.7.205:8080"];
-    _writer = [[StreamWriter alloc] initWithDestination:url];
+  if (!_sink) {
+    _sink = [[TSSocket alloc] init];
   }
-  return _writer;
+  return _sink;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

@@ -8,70 +8,92 @@
 
 #import "TSSocket.h"
 
-#include "AsyncUdpSocket.h"
 #include "avformat.h"
 
 @interface TSSocket()
 
-@property (weak, nonatomic) id<TSSocketDelegate> delegate;
-@property (strong, nonatomic) AsyncUdpSocket* socket;
-
-- (void) sendPacketWithPayload:(NSData*)payload andTag:(long)tag;
+@property (nonatomic) AVFormatContext* context;
+@property (nonatomic) AVStream* audioStream;
 
 @end
 
 @implementation TSSocket
 
-@synthesize delegate = _delegate;
-@synthesize socket = _socket;
+@synthesize context = _context;
+@synthesize audioStream = _audioStream;
 
-- (id) initWithDelegate:(id<TSSocketDelegate>)delegate
+- (void) pushVideoFrame:(NSData*)data
 {
-  self = [self init];
-  if (self) {
-    self.delegate = delegate;
+  
+}
+
+- (void) pushAudioFrame:(NSData*)data atOffset:(uint64_t)offset
+{
+  if (self.context == Nil) {
+    return;
   }
-  return self;
-}
-
-- (void) pushAudioFrame:(NSData*)data tag:(long)tag
-{
-  
-}
-
-- (void) pushVideoFrame:(NSData*)data tag:(long)tag
-{
-  
-}
-
-- (void) sendPacketWithPayload:(NSData*)payload andTag:(long)tag
-{
-  NSMutableData* packet = [[NSMutableData alloc] init];
-  
-  [packet appendData:payload];
-  [self.socket sendData:packet withTimeout:1000 tag:tag];
-}
-
-- (AsyncUdpSocket*) socket
-{
-  if (!_socket) {
-    _socket = [[AsyncUdpSocket alloc] initWithDelegate:self];
+  if (!self.audioStream) {
+    AVCodec codec = *avcodec_find_decoder(CODEC_ID_AAC);
+    self.audioStream = avformat_new_stream(self.context, &codec);
   }
-  return _socket;
-}
+  AVPacket pkt;
+  av_init_packet(&pkt);
 
-@end
-
-@implementation TSSocket (AsyncSocket)
-
-- (BOOL) connectToHost:(NSString *)host onPort:(UInt16)port error:(NSError **)errPtr
-{
-  return [self.socket connectToHost:host onPort:port error:errPtr];
+  pkt.data = (uint8_t *)[data bytes];
+  pkt.size = [data length];
+  pkt.flags |= AV_PKT_FLAG_KEY;
+  pkt.stream_index = self.audioStream->index;
+  pkt.dts = AV_NOPTS_VALUE;
+  pkt.pts = offset;
+  
+  if (av_interleaved_write_frame(self.context, &pkt) != 0) {
+    NSLog(@"Error writing Audio Frame");
+  }
 }
 
 - (BOOL) isConnected
 {
-  return [self.socket isConnected];
+  return self.context != Nil;
+}
+
+- (BOOL) connect
+{
+  // Don't initialize if already active.
+  if (self.context != Nil) {
+    return FALSE;
+  }  
+  av_register_all();
+
+  self.context = avformat_alloc_context();
+  if (!self.context) {
+    NSLog(@"Memory error allocating Muxing.");
+    return FALSE;
+  }
+  AVOutputFormat* fmt = av_guess_format("mpegts", NULL, NULL);
+  if (!fmt) {
+    NSLog(@"Could not initialize mpeg-ts muxing");
+    avformat_free_context(self.context);
+    self.context = NULL;
+    return FALSE;
+  }
+
+  self.context->oformat = fmt;
+  char* filename = "udp://128.208.7.205:8080";
+  strncpy(self.context->filename, filename, sizeof(filename));
+
+  avformat_write_header(self.context, NULL);  
+
+  return YES;
+}
+
+- (BOOL) disconnect
+{
+  // Don't shut down if not up.
+  if (self.context == Nil) return NO;
+
+  av_free(self.context);
+  self.context = Nil;
+  return YES;  
 }
 
 @end
