@@ -12,6 +12,7 @@
 @interface PBRViewController()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer* localVideo;
 @property (strong, nonatomic) TSSocket* sink;
+@property (strong, nonatomic) StreamWriter* audioWriter;
 
 - (void) didRotate:(NSNotification *)notification;
 
@@ -23,6 +24,7 @@
 
 @synthesize localVideo = _localVideo;
 @synthesize sink = _sink;
+@synthesize audioWriter = _audioWriter;
 
 - (void)didReceiveMemoryWarning
 {
@@ -94,8 +96,10 @@
   
   // The export to network setup.
   AVCaptureAudioDataOutput* audioCapture = [[AVCaptureAudioDataOutput alloc] init];
-  StreamWriter* audioWriter = [[StreamWriter alloc] initWithSink:self.sink];
-  [audioCapture setSampleBufferDelegate:audioWriter queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+  if (!self.audioWriter) {
+    self.audioWriter = [[StreamWriter alloc] initWithSink:self.sink];
+  }
+  [audioCapture setSampleBufferDelegate:self.audioWriter queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
   [newCaptureSession addOutput:audioCapture];
   
   // The local preview view.

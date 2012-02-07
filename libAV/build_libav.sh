@@ -9,7 +9,11 @@
 cd libAV/libAV
 
 if [ -e "compiled/fat/lib/libavformat.a" ]; then
-  exit 0;
+  if test compiled/fat/lib/libavformat.a -nt $0; then
+    exit 0;
+  else
+    rm -r "compiled/fat/lib";
+  fi
 fi
 
 export PATH=$PATH:../gas
@@ -26,6 +30,7 @@ export PATH=$PATH:../gas
 --disable-everything \
 \
 --enable-muxer=mpegts \
+--enable-decoder=aac \
 \
 --enable-cross-compile \
 --arch=arm \
@@ -54,6 +59,7 @@ make && make install
 --disable-everything \
 \
 --enable-muxer=mpegts \
+--enable-decoder=aac \
 \
 --enable-cross-compile \
 --arch=i386 \

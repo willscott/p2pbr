@@ -33,8 +33,12 @@
     return;
   }
   if (!self.audioStream) {
-    AVCodec codec = *avcodec_find_decoder(CODEC_ID_AAC);
-    self.audioStream = avformat_new_stream(self.context, &codec);
+    AVCodec* codec = avcodec_find_decoder(CODEC_ID_AAC);
+    if (!codec) {
+      NSLog(@"LibAV Doesn't Understand AAC.");
+      return;
+    }
+    self.audioStream = avformat_new_stream(self.context, codec);
   }
   AVPacket pkt;
   av_init_packet(&pkt);
@@ -80,8 +84,6 @@
   self.context->oformat = fmt;
   char* filename = "udp://128.208.7.205:8080";
   strncpy(self.context->filename, filename, sizeof(filename));
-
-  avformat_write_header(self.context, NULL);  
 
   return YES;
 }

@@ -13,7 +13,6 @@
 @interface StreamWriter()
 @property (strong, nonatomic) id <PBRAudioSink> sink;
 @property (strong, nonatomic) NSError* lastError;
-@property (strong, nonatomic) NSNumber* tag;
 
 @property (nonatomic) AudioConverterRef converter;
 @property (nonatomic) AudioStreamBasicDescription* sourceAudioFormat;
@@ -27,14 +26,12 @@
 
 @synthesize sink = _sink;
 @synthesize lastError = _lastError;
-@synthesize tag = _tag;
 @synthesize converter = _converter;
 
 - (id)initWithSink:(id <PBRAudioSink>)sink
 {
   self = [self init];
   if (self) {
-    self.tag = [[NSNumber alloc] initWithLong:0];
     self.sink = sink;
   }
   return self;
@@ -101,21 +98,16 @@ static OSStatus EncoderDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     outputStructure.mBuffers[0].mData = outputBuffer;
     
     UInt32 numPackets = 1;
-    AudioStreamPacketDescription *outputPacketDescriptions = NULL;
-    AudioConverterFillComplexBuffer(self.converter, EncoderDataProc, &inputStructure, &numPackets, &outputStructure, outputPacketDescriptions);
+    AudioStreamPacketDescription outputPacketDescription;
+    AudioConverterFillComplexBuffer(self.converter, EncoderDataProc, &inputStructure, &numPackets, &outputStructure, &outputPacketDescription);
     
     if (numPackets > 0) {
       UInt32 outBytes = outputStructure.mBuffers[0].mDataByteSize;
-      [self.sink pushAudioFrame:[data subdataWithRange:NSMakeRange(0, outBytes)] atOffset:outputPacketDescriptions->mStartOffset];
+      [self.sink pushAudioFrame:[data subdataWithRange:NSMakeRange(0, outBytes)] atOffset:outputPacketDescription.mStartOffset];
     } else {
       NSLog(@"Audio converter returned EOF");
     }
   }
-}
-
-- (NSNumber*) tag
-{
-  return [[NSNumber alloc] initWithLong:[_tag longValue] + 1];
 }
 
 - (AudioConverterRef) converter
