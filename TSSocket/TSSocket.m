@@ -9,6 +9,7 @@
 #import "TSSocket.h"
 
 #include "AsyncUdpSocket.h"
+#include "avformat.h"
 
 @interface TSSocket()
 
