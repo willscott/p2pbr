@@ -10,3 +10,4 @@
 [submodule "libAV/libAV"]
 	path = libAV/libAV
 	url = git://github.com/libav/libav.git
+	ignore = untracked
