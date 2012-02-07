@@ -8,6 +8,10 @@
 [ "$SOURCE_ROOT" ] && cd $SOURCE_ROOT || cd ..
 cd libAV/libAV
 
+if [ -e "compiled/fat/lib/libavformat.a" ]; then
+  exit 0;
+fi
+
 export PATH=$PATH:../gas
 
 # configure for armv7 build
