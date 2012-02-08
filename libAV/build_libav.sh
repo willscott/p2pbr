@@ -31,6 +31,7 @@ export PATH=$PATH:../gas
 \
 --enable-muxer=mpegts \
 --enable-decoder=aac \
+--enable-protocol=udp \
 \
 --enable-cross-compile \
 --arch=arm \
@@ -60,6 +61,7 @@ make && make install
 \
 --enable-muxer=mpegts \
 --enable-decoder=aac \
+--enable-protocol=udp \
 \
 --enable-cross-compile \
 --arch=i386 \

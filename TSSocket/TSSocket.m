@@ -14,6 +14,7 @@
 
 @property (nonatomic) AVFormatContext* context;
 @property (nonatomic) AVStream* audioStream;
+@property BOOL headerWritten;
 
 @end
 
@@ -21,6 +22,7 @@
 
 @synthesize context = _context;
 @synthesize audioStream = _audioStream;
+@synthesize headerWritten = _headerWritten;
 
 - (void) pushVideoFrame:(NSData*)data
 {
@@ -31,6 +33,15 @@
 {
   if (self.context == Nil) {
     return;
+  }
+  if (!self.headerWritten) {
+    char* filename = "udp://128.208.7.205:8080";
+    if(avio_open(&self.context->pb, filename, AVIO_FLAG_WRITE) < 0) {
+      NSLog(@"Error Opening UDP Connection.");
+      return;
+    }
+    avformat_write_header(self.context, NULL);
+    self.headerWritten = YES;
   }
   if (!self.audioStream) {
     AVCodec* codec = avcodec_find_decoder(CODEC_ID_AAC);
@@ -67,6 +78,7 @@
     return FALSE;
   }  
   av_register_all();
+  avformat_network_init();
 
   self.context = avformat_alloc_context();
   if (!self.context) {
@@ -85,6 +97,7 @@
   char* filename = "udp://128.208.7.205:8080";
   strncpy(self.context->filename, filename, sizeof(filename));
 
+  self.headerWritten = NO;
   return YES;
 }
 
