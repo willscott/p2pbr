@@ -7,16 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <AVFoundation/AVCaptureOutput.h>
-#import <AVFoundation/AVCaptureInput.h>
+#include <AudioToolbox/AudioToolbox.h>
 #import "TSSocket.h"
 
-@interface StreamWriter : NSObject <AVCaptureAudioDataOutputSampleBufferDelegate>
-
-@property (nonatomic) AudioStreamBasicDescription destinationAudioFormat;
+@interface StreamWriter : NSObject
 
 - (id)initWithSink:(id <PBRAudioSink>)sink;
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection;
+- (BOOL)isRunning;
 
 @end

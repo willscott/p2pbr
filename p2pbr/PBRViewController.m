@@ -70,37 +70,21 @@
   return nil;
 }
 
-- (AVCaptureDevice *) audioDevice
-{
-  NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
-  if ([devices count] > 0) {
-    return [devices objectAtIndex:0];
-  }
-  return nil;
-}
-
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     [self.activityIndicator startAnimating];
 
   AVCaptureDeviceInput *newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontFacingCamera] error:nil];
-  AVCaptureDeviceInput *newAudioInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self audioDevice] error:nil];
   AVCaptureSession *newCaptureSession = [[AVCaptureSession alloc] init];
   if ([newCaptureSession canAddInput:newVideoInput]) {
     [newCaptureSession addInput:newVideoInput];
   }
-  if ([newCaptureSession canAddInput:newAudioInput]) {
-    [newCaptureSession addInput:newAudioInput];
-  }
   
   // The export to network setup.
-  AVCaptureAudioDataOutput* audioCapture = [[AVCaptureAudioDataOutput alloc] init];
   if (!self.audioWriter) {
     self.audioWriter = [[StreamWriter alloc] initWithSink:self.sink];
   }
-  [audioCapture setSampleBufferDelegate:self.audioWriter queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
-  [newCaptureSession addOutput:audioCapture];
   
   // The local preview view.
   self.localVideo = [[AVCaptureVideoPreviewLayer alloc] initWithSession:newCaptureSession];

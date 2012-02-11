@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#include <AudioToolbox/AudioToolbox.h>
+
 
 @protocol PBRSink <NSObject>
 
@@ -16,7 +18,10 @@
 
 @protocol PBRAudioSink <PBRSink>
 
-- (void) pushAudioFrame:(NSData*)data atOffset:(uint64_t)offset;
+- (void) pushAudioFrame:(AudioQueueBuffer*)data
+               withRate:(int)rate
+           andFrameSize:(int)frameSize
+            andChannels:(int)channels;
 
 @end
 
@@ -25,6 +30,8 @@
 - (void) pushVideoFrame:(NSData*)data;
 
 @end
+
+const NSString * TSSocketStatusDidChange;
 
 @interface TSSocket : NSObject<PBRAudioSink, PBRVideoSink>
 
