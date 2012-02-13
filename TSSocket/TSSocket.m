@@ -30,7 +30,7 @@ const NSString * TSSocketStatusDidChange = @"TSSocketStatusChanged";
   
 }
 
-- (void) pushAudioFrame:(AudioQueueBuffer*)data
+- (void) pushAudioFrame:(NSData*)data
                withRate:(int)rate
            andFrameSize:(int)frameSize
             andChannels:(int)channels
@@ -46,9 +46,9 @@ const NSString * TSSocketStatusDidChange = @"TSSocketStatusChanged";
     codec->sample_rate = rate;
     codec->frame_size = frameSize;
     codec->channels = channels;
-    codec->sample_fmt = AV_SAMPLE_FMT_S16;
+    //codec->sample_fmt = AV_SAMPLE_FMT_S16;
 
-    char* filename = "udp://128.208.7.7:8080";
+    char* filename = "udp://128.208.7.74:8080";
     if(avio_open(&self.context->pb, filename, AVIO_FLAG_WRITE) < 0) {
       NSLog(@"Error Opening UDP Connection.");
       return;
@@ -67,12 +67,13 @@ const NSString * TSSocketStatusDidChange = @"TSSocketStatusChanged";
   AVPacket pkt;
   av_init_packet(&pkt);
 
-  pkt.data = data->mAudioData;
-  pkt.size = data->mAudioDataByteSize;
+  pkt.data = (uint8_t*)[data bytes];
+  pkt.size = [data length];
   pkt.flags |= AV_PKT_FLAG_KEY;
   pkt.stream_index = self.audioStream->index;
   pkt.dts = AV_NOPTS_VALUE;
   pkt.pts = AV_NOPTS_VALUE;
+  //TODO(willscott): Can probably use the audio-queue generated numbers.
   
   if (av_interleaved_write_frame(self.context, &pkt) != 0) {
     NSLog(@"Error writing Audio Frame");
@@ -111,7 +112,7 @@ const NSString * TSSocketStatusDidChange = @"TSSocketStatusChanged";
   }
 
   self.context->oformat = fmt;
-  char* filename = "udp://128.208.7.7:8080";
+  char* filename = "udp://128.208.7.74:8080";
   strncpy(self.context->filename, filename, sizeof(filename));
 
   // Audio Input

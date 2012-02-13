@@ -17,6 +17,8 @@
 - (int) ComputeRecordBufferSize:(AudioStreamBasicDescription *)format forTime:(float) seconds;
 @end
 
+#define ADTS_HEADER_LENGTH 7
+
 @implementation StreamWriter
 @synthesize sink = _sink;
 @synthesize converter = _converter;
@@ -72,6 +74,9 @@ AudioStreamBasicDescription	mRecordFormat;
                             &mRecordFormat.mChannelsPerFrame);
   
 	mRecordFormat.mFormatID = format;
+  if (format == kAudioFormatMPEG4AAC) {
+    mRecordFormat.mFormatFlags = kMPEG4Object_AAC_Main;
+  }
 }
 
 - (int) ComputeRecordBufferSize:(AudioStreamBasicDescription *)format forTime:(float) seconds
@@ -101,6 +106,22 @@ AudioStreamBasicDescription	mRecordFormat;
 	return bytes;
 }
 
+static void calculateADTSHeader(char* b, UInt32 length)
+{
+  // From: http://wiki.multimedia.cx/index.php?title=ADTS
+  b[0] = 0xff;
+  b[1] = (0xf << 4) + 0x1;  //mpeg 4, no protection.
+  b[2] = (0x4 << 2); // mpg4 type, frequency, private.
+  b[3] = (0x1 << 6); // #channels, original, home, 2x copyright, 2xlength.
+  b[4] = 0;    // length.
+  b[5] = 0x1f; // vbr.
+  b[6] = 0xfc; // vbr, 1 aac frame
+  
+  length += ADTS_HEADER_LENGTH;
+  b[3] |= (length & 0x00001800) >> 11;
+  b[4] |= (length & 0x000007f8) >> 3;
+  b[5] |= (length & 0x00000007) << 5;
+}
 
 static void InputBufferHandler(void* userData,
                                AudioQueueRef AQ,
@@ -114,11 +135,19 @@ static void InputBufferHandler(void* userData,
   if (numPkts > 0) {
     //Parse Packets
     NSLog(@"Received %lu packets.", numPkts);
-    
-    [writer.sink pushAudioFrame:buffer 
-                       withRate:mRecordFormat.mSampleRate 
-                   andFrameSize:mRecordFormat.mFramesPerPacket 
-                    andChannels:mRecordFormat.mChannelsPerFrame];
+    for (int i = 0; i < numPkts; i++) {
+      AudioStreamPacketDescription d = descriptors[i];
+      NSMutableData* pkt = [[NSMutableData alloc] initWithLength:d.mDataByteSize+ADTS_HEADER_LENGTH];
+      [pkt replaceBytesInRange:NSMakeRange(ADTS_HEADER_LENGTH, d.mDataByteSize) 
+                     withBytes:(buffer->mAudioData + d.mStartOffset) 
+                        length:(d.mDataByteSize)];
+      calculateADTSHeader((void*)[pkt bytes], d.mDataByteSize);
+
+      [writer.sink pushAudioFrame:pkt 
+                         withRate:mRecordFormat.mSampleRate 
+                     andFrameSize:mRecordFormat.mFramesPerPacket 
+                      andChannels:mRecordFormat.mChannelsPerFrame];
+     }
     
     if ([writer isRunning]) {
       AudioQueueEnqueueBuffer(AQ, buffer, 0, NULL);
@@ -131,13 +160,14 @@ static void InputBufferHandler(void* userData,
   if ([self.sink isConnected] && !mIsRunning) {
     mIsRunning = true;
     [self SetupAudioFormat:kAudioFormatMPEG4AAC];
-    AudioQueueNewInput(&mRecordFormat,
+    OSStatus err = AudioQueueNewInput(&mRecordFormat,
                        InputBufferHandler,
                        (__bridge void*)self /* user data */,
                        NULL /* run loop */,
                        NULL /*run loop mode */,
                        0 /* flags */,
                        &mQueue);
+    if (err) NSLog(@"Err adding queue input: %lu", err);
 
     UInt32 size = sizeof(mRecordFormat);
 		AudioQueueGetProperty(mQueue,
@@ -147,10 +177,10 @@ static void InputBufferHandler(void* userData,
     
 		int bufferByteSize = [self ComputeRecordBufferSize:&mRecordFormat forTime:0.5];
 		for (int i = 0; i < 3; ++i) {
-			AudioQueueAllocateBuffer(mQueue, bufferByteSize, &mBuffers[i]);
+			AudioQueueAllocateBuffer(mQueue, (bufferByteSize + ADTS_HEADER_LENGTH), &mBuffers[i]);
 			AudioQueueEnqueueBuffer(mQueue, mBuffers[i], 0, NULL);
 		}
-    OSStatus err = AudioQueueStart(mQueue, NULL);
+    err = AudioQueueStart(mQueue, NULL);
     NSLog(@"Audio queue started. %lu", err);
   } else if (![self.sink isConnected] && mIsRunning) {
     mIsRunning = false;

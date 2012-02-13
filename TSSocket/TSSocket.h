@@ -18,7 +18,7 @@
 
 @protocol PBRAudioSink <PBRSink>
 
-- (void) pushAudioFrame:(AudioQueueBuffer*)data
+- (void) pushAudioFrame:(NSData*)data
                withRate:(int)rate
            andFrameSize:(int)frameSize
             andChannels:(int)channels;
