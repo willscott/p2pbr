@@ -7,12 +7,12 @@
 //
 
 #import "PBRViewController.h"
-#import "StreamWriter.h"
+#import "ADTSEncoder.h"
 
 @interface PBRViewController()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer* localVideo;
 @property (strong, nonatomic) TSSocket* sink;
-@property (strong, nonatomic) StreamWriter* audioWriter;
+@property (strong, nonatomic) ADTSEncoder* audioWriter;
 
 - (void) didRotate:(NSNotification *)notification;
 
@@ -83,7 +83,7 @@
   
   // The export to network setup.
   if (!self.audioWriter) {
-    self.audioWriter = [[StreamWriter alloc] initWithSink:self.sink];
+    self.audioWriter = [[ADTSEncoder alloc] initWithSink:self.sink];
   }
   
   // The local preview view.

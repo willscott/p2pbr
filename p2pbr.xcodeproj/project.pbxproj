@@ -23,7 +23,7 @@
 		934465C114D89EBF007C028A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 934465BF14D89EBF007C028A /* InfoPlist.strings */; };
 		934465C414D89EBF007C028A /* p2pbrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465C314D89EBF007C028A /* p2pbrTests.m */; };
 		934465D614D8A830007C028A /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465D514D8A830007C028A /* AVFoundation.framework */; };
-		934465DB14D8D929007C028A /* StreamWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465DA14D8D929007C028A /* StreamWriter.m */; };
+		934465DB14D8D929007C028A /* ADTSEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 934465DA14D8D929007C028A /* ADTSEncoder.m */; };
 		934465E114D8EA3F007C028A /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E014D8EA3F007C028A /* CoreMedia.framework */; };
 		934465E514D8FA7A007C028A /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E414D8FA7A007C028A /* CFNetwork.framework */; };
 		934465E614D8FA99007C028A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E214D8F9B3007C028A /* Security.framework */; };
@@ -127,8 +127,8 @@
 		934465C214D89EBF007C028A /* p2pbrTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = p2pbrTests.h; sourceTree = "<group>"; };
 		934465C314D89EBF007C028A /* p2pbrTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = p2pbrTests.m; sourceTree = "<group>"; };
 		934465D514D8A830007C028A /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		934465D914D8D929007C028A /* StreamWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamWriter.h; sourceTree = "<group>"; };
-		934465DA14D8D929007C028A /* StreamWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamWriter.m; sourceTree = "<group>"; };
+		934465D914D8D929007C028A /* ADTSEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; path = ADTSEncoder.h; sourceTree = "<group>"; };
+		934465DA14D8D929007C028A /* ADTSEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTSEncoder.m; sourceTree = "<group>"; };
 		934465E014D8EA3F007C028A /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		934465E214D8F9B3007C028A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		934465E414D8FA7A007C028A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -338,8 +338,8 @@
 				934465AA14D89EBF007C028A /* MainStoryboard_iPad.storyboard */,
 				934465AD14D89EBF007C028A /* PBRViewController.h */,
 				934465AE14D89EBF007C028A /* PBRViewController.m */,
-				934465D914D8D929007C028A /* StreamWriter.h */,
-				934465DA14D8D929007C028A /* StreamWriter.m */,
+				934465D914D8D929007C028A /* ADTSEncoder.h */,
+				934465DA14D8D929007C028A /* ADTSEncoder.m */,
 				9344659C14D89EBF007C028A /* Supporting Files */,
 			);
 			path = p2pbr;
@@ -535,7 +535,7 @@
 				934465A214D89EBF007C028A /* main.m in Sources */,
 				934465A614D89EBF007C028A /* PBRAppDelegate.m in Sources */,
 				934465AF14D89EBF007C028A /* PBRViewController.m in Sources */,
-				934465DB14D8D929007C028A /* StreamWriter.m in Sources */,
+				934465DB14D8D929007C028A /* ADTSEncoder.m in Sources */,
 				936E489A14E0848C0021A3AF /* AsyncSocket.m in Sources */,
 				936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */,
 				93440A0B14E0D21900A82B95 /* TSSocket.m in Sources */,
