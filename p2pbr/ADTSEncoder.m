@@ -143,7 +143,8 @@ static void InputBufferHandler(void* userData,
                         length:(d.mDataByteSize)];
       calculateADTSHeader((void*)[pkt bytes], d.mDataByteSize);
 
-      [writer.sink pushAudioFrame:pkt 
+      [writer.sink pushAudioFrame:pkt
+                         fromTime:(i==0)?startTime:nil
                          withRate:mRecordFormat.mSampleRate 
                      andFrameSize:mRecordFormat.mFramesPerPacket 
                       andChannels:mRecordFormat.mChannelsPerFrame];

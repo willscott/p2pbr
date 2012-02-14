@@ -19,6 +19,7 @@
 @protocol PBRAudioSink <PBRSink>
 
 - (void) pushAudioFrame:(NSData*)data
+               fromTime:(const AudioTimeStamp*)time
                withRate:(int)rate
            andFrameSize:(int)frameSize
             andChannels:(int)channels;
