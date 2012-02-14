@@ -7,9 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AsyncUdpSocket.h"
+#import "AsyncSocket.h"
 
-@interface PBRNetworkManager : NSObject <AsyncUdpSocketDelegate>
+@interface PBRNetworkManager : NSObject <AsyncSocketDelegate>
 
 @property (strong, nonatomic) NSURL* server;
 @property (strong, nonatomic) NSMutableArray* sources;

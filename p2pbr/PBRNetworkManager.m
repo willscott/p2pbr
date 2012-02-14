@@ -14,9 +14,6 @@
 
 @end
 
-
-#define MAX_PKT_SIZE 1400
-
 @implementation PBRNetworkManager
 
 @synthesize server = _server;
@@ -36,25 +33,15 @@
 -(void) pollServer
 {
   //Periodically should dispatch a poll.
-  AsyncUdpSocket* sock = [[AsyncUdpSocket alloc] initWithDelegate:self];
+  AsyncSocket* sock = [[AsyncSocket alloc] initWithDelegate:self];
   [sock connectToHost:@"128.208.7.74" onPort:8080 error:nil];
   [self.destinations addObject:sock];
 }
 
 -(void) sendData:(NSData *)data
 {
-  [self.destinations enumerateObjectsUsingBlock:^(AsyncUdpSocket* obj, NSUInteger idx, BOOL *stop) {
-    unsigned int chunksize = MAX_PKT_SIZE;
-    int chunks = [data length]/chunksize;
-    int remainder = [data length]%chunksize;
-    if (remainder) {
-      chunks++;
-    } else {
-      remainder = chunksize;
-    }
-    for (int i = 0; i < chunks; i++) {
-      [obj sendData:[data subdataWithRange:NSMakeRange(i*chunksize, (i+1==chunks)?remainder:chunksize)] withTimeout:1000 tag:random()];
-    }
+  [self.destinations enumerateObjectsUsingBlock:^(AsyncSocket* obj, NSUInteger idx, BOOL *stop) {
+    [obj writeData:data withTimeout:1000 tag:random()];
   }];
 }
 
@@ -67,11 +54,11 @@
 }
 
 
-- (void)onUdpSocket:(AsyncUdpSocket *)sock didSendDataWithTag:(long)tag
+- (void)onSocket:(AsyncSocket *)sock didSendDataWithTag:(long)tag
 {
 }
 
-- (void)onUdpSocket:(AsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error;
+- (void)onSocket:(AsyncSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error;
 {
   NSLog(@"Error sending:%@",error);
 }
