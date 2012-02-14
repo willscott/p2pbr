@@ -7,12 +7,15 @@
 //
 
 #import "PBRViewController.h"
-#import "ADTSEncoder.h"
+#include "PBRAVPacketizer.h"
+#import "PBRNetworkManager.h"
+
+const NSString* serverAddress = @"http://www.quimian.com/p2pbr.txt";
 
 @interface PBRViewController()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer* localVideo;
-@property (strong, nonatomic) TSSocket* sink;
-@property (strong, nonatomic) ADTSEncoder* audioWriter;
+@property (strong, nonatomic) PBRAVPacketizer* packetizer;
+@property (strong, nonatomic) PBRNetworkManager* network;
 
 - (void) didRotate:(NSNotification *)notification;
 
@@ -23,8 +26,8 @@
 @synthesize preview = _preview;
 
 @synthesize localVideo = _localVideo;
-@synthesize sink = _sink;
-@synthesize audioWriter = _audioWriter;
+@synthesize packetizer = _packetizer;
+@synthesize network = _network;
 
 - (void)didReceiveMemoryWarning
 {
@@ -37,16 +40,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
 }
 
 - (void)viewDidUnload
 {
-    [self setActivityIndicator:nil];
+  [self setActivityIndicator:nil];
   [self setPreview:nil];
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
+  [super viewDidUnload];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -70,26 +70,48 @@
   return nil;
 }
 
+- (AVCaptureDevice *) microphone
+{
+  NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
+  for (AVCaptureDevice *device in devices) {
+    if ([device isConnected]) {
+      return device;
+    }
+  }
+  return nil;
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
-    [self.activityIndicator startAnimating];
+  [super viewDidAppear:animated];
+  [self.activityIndicator startAnimating];
 
   AVCaptureDeviceInput *newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontFacingCamera] error:nil];
+  AVCaptureDeviceInput *newAudioInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self microphone] error:nil];
   AVCaptureSession *newCaptureSession = [[AVCaptureSession alloc] init];
   if ([newCaptureSession canAddInput:newVideoInput]) {
     [newCaptureSession addInput:newVideoInput];
   }
-  
-  // The export to network setup.
-  if (!self.audioWriter) {
-    self.audioWriter = [[ADTSEncoder alloc] initWithSink:self.sink];
+  if ([newCaptureSession canAddInput:newAudioInput]) {
+    [newCaptureSession addInput:newAudioInput];
   }
-  
+    
   // The local preview view.
   self.localVideo = [[AVCaptureVideoPreviewLayer alloc] initWithSession:newCaptureSession];
   CALayer *viewLayer = [self.preview layer];
   [viewLayer setMasksToBounds:YES];
+
+  // Connect to packetizer.
+  AVCaptureMovieFileOutput* output = [[AVCaptureMovieFileOutput alloc] init];
+  [output setMovieFragmentInterval:CMTimeMakeWithSeconds(1, 10)]; //.1 sec
+  [output setMaxRecordedDuration:CMTimeMakeWithSeconds(1, 2)]; //.5 sec
+  AVMutableMetadataItem* title = [[AVMutableMetadataItem alloc] init];
+  [title setKeySpace:AVMetadataKeySpaceCommon];
+  [title setKey:AVMetadataCommonKeyTitle];
+  [title setValue:@"p2pbr"];
+  [output setMetadata:[NSArray arrayWithObject:title]];
+  [newCaptureSession addOutput:output];
+  [self.packetizer recordFrom:output];
   
   [self didRotate:nil];
   [self.localVideo setFrame:[self.preview bounds]];
@@ -120,18 +142,27 @@
 
 - (IBAction)toggle:(UISwitch *)sender {
   if([sender isOn]) {
-    [self.sink connect];
+    [self.packetizer setActive:YES];
   } else {
-    [self.sink disconnect];
+    [self.packetizer setActive:NO];
   }
 }
 
-- (TSSocket*) sink
+- (PBRAVPacketizer*) packetizer
 {
-  if (!_sink) {
-    _sink = [[TSSocket alloc] init];
+  if (!_packetizer) {
+    _packetizer = [[PBRAVPacketizer alloc] init];
+    [_packetizer setSocket:self.network];
   }
-  return _sink;
+  return _packetizer;
+}
+
+- (PBRNetworkManager*) network
+{
+  if (!_network) {
+    _network = [[PBRNetworkManager alloc] initWithServer:[NSURL URLWithString:(NSString*)serverAddress]];
+  }
+  return _network;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
