@@ -10,7 +10,8 @@
 #include "PBRAVPacketizer.h"
 #import "PBRNetworkManager.h"
 
-const NSString* serverAddress = @"http://www.quimian.com/p2pbr.txt";
+//const NSString* serverAddress = @"http://www.quimian.com/p2pbr.txt";
+const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/";
 
 @interface PBRViewController()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer* localVideo;
@@ -18,6 +19,7 @@ const NSString* serverAddress = @"http://www.quimian.com/p2pbr.txt";
 @property (strong, nonatomic) PBRNetworkManager* network;
 
 - (void) didRotate:(NSNotification *)notification;
+- (void) recordMode;
 
 @end
 
@@ -85,7 +87,15 @@ const NSString* serverAddress = @"http://www.quimian.com/p2pbr.txt";
 {
   [super viewDidAppear:animated];
   [self.activityIndicator startAnimating];
+  PBRNetworkManager* net = [self network];  
+  
+  if ([net.destinations count] > 0) {
+    [self recordMode];
+  }
+}
 
+- (void)recordMode
+{
   AVCaptureDeviceInput *newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontFacingCamera] error:nil];
   AVCaptureDeviceInput *newAudioInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self microphone] error:nil];
   AVCaptureSession *newCaptureSession = [[AVCaptureSession alloc] init];
@@ -95,12 +105,12 @@ const NSString* serverAddress = @"http://www.quimian.com/p2pbr.txt";
   if ([newCaptureSession canAddInput:newAudioInput]) {
     [newCaptureSession addInput:newAudioInput];
   }
-    
+  
   // The local preview view.
   self.localVideo = [[AVCaptureVideoPreviewLayer alloc] initWithSession:newCaptureSession];
   CALayer *viewLayer = [self.preview layer];
   [viewLayer setMasksToBounds:YES];
-
+  
   // Connect to packetizer.
   AVCaptureMovieFileOutput* output = [[AVCaptureMovieFileOutput alloc] init];
   [output setMovieFragmentInterval:CMTimeMakeWithSeconds(1, 10)]; //.1 sec
@@ -123,6 +133,11 @@ const NSString* serverAddress = @"http://www.quimian.com/p2pbr.txt";
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [newCaptureSession startRunning];
   });
+}
+
+- (void)playMode
+{
+  
 }
 
 - (void)viewWillDisappear:(BOOL)animated

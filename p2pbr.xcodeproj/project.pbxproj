@@ -29,6 +29,7 @@
 		936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489914E0848C0021A3AF /* AsyncUdpSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		93C5E7DD14EAD9B400D3A953 /* PBRAVPacketizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E7DC14EAD9B400D3A953 /* PBRAVPacketizer.m */; };
 		93C5E7E014EAEA0900D3A953 /* PBRNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E7DF14EAEA0900D3A953 /* PBRNetworkManager.m */; };
+		93C5E7E214EB1CEB00D3A953 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C5E7E114EB1CEB00D3A953 /* MediaPlayer.framework */; };
 		93F38F8B14DBA5F200783164 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93F38F8A14DBA5F200783164 /* AudioToolbox.framework */; };
 /* End PBXBuildFile section */
 
@@ -75,6 +76,7 @@
 		93C5E7DC14EAD9B400D3A953 /* PBRAVPacketizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRAVPacketizer.m; sourceTree = "<group>"; };
 		93C5E7DE14EAEA0900D3A953 /* PBRNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRNetworkManager.h; sourceTree = "<group>"; };
 		93C5E7DF14EAEA0900D3A953 /* PBRNetworkManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRNetworkManager.m; sourceTree = "<group>"; };
+		93C5E7E114EB1CEB00D3A953 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		93F38F8A14DBA5F200783164 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -83,6 +85,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93C5E7E214EB1CEB00D3A953 /* MediaPlayer.framework in Frameworks */,
 				93F38F8B14DBA5F200783164 /* AudioToolbox.framework in Frameworks */,
 				934465E614D8FA99007C028A /* Security.framework in Frameworks */,
 				934465E514D8FA7A007C028A /* CFNetwork.framework in Frameworks */,
@@ -130,6 +133,7 @@
 		9344659414D89EBF007C028A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				93C5E7E114EB1CEB00D3A953 /* MediaPlayer.framework */,
 				93F38F8A14DBA5F200783164 /* AudioToolbox.framework */,
 				934465E414D8FA7A007C028A /* CFNetwork.framework */,
 				934465E214D8F9B3007C028A /* Security.framework */,

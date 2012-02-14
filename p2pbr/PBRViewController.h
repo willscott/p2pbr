@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
-
+#import <MediaPlayer/MediaPlayer.h>
 
 @interface PBRViewController : UIViewController
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
