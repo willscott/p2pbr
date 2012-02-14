@@ -13,7 +13,7 @@
 
 @property (strong, nonatomic) NSURL* server;
 @property (strong, nonatomic) AsyncSocket* receiveSocket;
-@property (strong, nonatomic) NSMutableArray* sources;
+@property (strong, nonatomic) NSMutableArray* sourceHosts;
 @property (strong, nonatomic) NSMutableArray* destinations;
 
 -(id) initWithServer:(NSURL*)server;

@@ -10,6 +10,8 @@
 
 @interface PBRNetworkManager()
 
+@property (strong,nonatomic) NSMutableArray* sourceSockets;
+
 -(void) pollServer;
 
 @end
@@ -18,7 +20,8 @@
 
 @synthesize server = _server;
 @synthesize receiveSocket = _receiveSocket;
-@synthesize sources = _sources;
+@synthesize sourceHosts = _sourceHosts;
+@synthesize sourceSockets = _sourceSockets;
 @synthesize destinations = _destinations;
 
 -(id) initWithServer:(NSURL*)server
@@ -53,15 +56,18 @@
 
     NSArray* srcs = [parsed valueForKey:@"get"];
     [srcs enumerateObjectsUsingBlock:^(NSString* src, NSUInteger idx, BOOL *stop) {
-      [self.sources addObject:src];
+      [self.sourceHosts addObject:src];
     }];
-    NSLog(@"Loaded %d destinations and %d sources.",[self.destinations count],[self.sources count]);
+    NSLog(@"Loaded %d destinations and %d sources.",[self.destinations count],[self.sourceHosts count]);
   }
 }
 
 -(void) sendData:(NSData *)data
 {
+  int len = [data length];
+  NSData* length = [NSData dataWithBytes:&len length:sizeof(int)];
   [self.destinations enumerateObjectsUsingBlock:^(AsyncSocket* obj, NSUInteger idx, BOOL *stop) {
+    [obj writeData:length withTimeout:1000 tag:random()];
     [obj writeData:data withTimeout:1000 tag:random()];
   }];
 }
@@ -74,12 +80,20 @@
   return _destinations;
 }
 
--(NSMutableArray*)sources
+-(NSMutableArray*)sourceHosts
 {
-  if (!_sources) {
-    _sources = [[NSMutableArray alloc] init];
+  if (!_sourceHosts) {
+    _sourceHosts = [[NSMutableArray alloc] init];
   }
-  return _sources;
+  return _sourceHosts;
+}
+
+-(NSMutableArray*)sourceSockets
+{
+  if (!_sourceSockets) {
+    _sourceSockets = [[NSMutableArray alloc] init];
+  }
+  return _sourceSockets;
 }
 
 -(AsyncSocket*)receiveSocket
@@ -107,12 +121,30 @@
 
 - (void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-  if (sock != self.receiveSocket)
-  {
-    NSLog(@"Unexpected data received from %@", sock);
-  }
 
   NSLog(@"Got %d bytes of data", [data length]);
+}
+
+- (void)onSocket:(AsyncSocket *)sock didAcceptNewSocket:(AsyncSocket *)newSocket
+{
+  if (sock != self.receiveSocket)
+  {
+    NSLog(@"Unexpected accept received from unbound socket %@", sock);
+    return;
+  }
+  [newSocket setDelegate:self];
+  [self.sourceSockets addObject:newSocket];
+}
+
+- (void)onSocket:(AsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
+{
+  if ([self.sourceSockets containsObject:sock]) {
+    if (![self.sourceHosts containsObject:host]) {
+      NSLog(@"Unexpected source connection. Should probably stop this.");
+    } else {
+      NSLog(@"Successfully got connection from %@", host);
+    }
+  }
 }
 
 @end
