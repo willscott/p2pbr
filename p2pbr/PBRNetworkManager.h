@@ -15,10 +15,11 @@
 @property (strong, nonatomic) AsyncSocket* receiveSocket;
 @property (strong, nonatomic) NSMutableArray* sourceHosts;
 @property (strong, nonatomic) NSMutableArray* destinations;
+@property (nonatomic) BOOL mode;
 
 @property (strong,nonatomic) NSMutableData* segment;
 
--(id) initWithServer:(NSURL*)server mode:(BOOL)mode;
+-(id) initWithServer:(NSURL*)server;
 -(void) sendData:(NSData*)data;
 
 @end

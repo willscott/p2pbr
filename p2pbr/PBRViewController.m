@@ -31,7 +31,6 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 @implementation PBRViewController
 @synthesize activityIndicator = _activityIndicator;
 @synthesize preview = _preview;
-@synthesize clientMode = _clientMode;
 
 @synthesize recordView = _recordView;
 @synthesize playView = _playView;
@@ -56,7 +55,6 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 {
   [self setActivityIndicator:nil];
   [self setPreview:nil];
-  [self setClientMode:nil];
   [super viewDidUnload];
 }
 
@@ -96,11 +94,14 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 {
   [super viewDidAppear:animated];
   [self.activityIndicator startAnimating];
-  
+  [self playMode];
 }
 
 - (void)recordMode
 {
+  [self.player playTo:nil];
+  [[self.playView view] removeFromSuperview];
+
   AVCaptureDeviceInput *newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontFacingCamera] error:nil];
   AVCaptureDeviceInput *newAudioInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self microphone] error:nil];
   AVCaptureSession *newCaptureSession = [[AVCaptureSession alloc] init];
@@ -142,8 +143,15 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
 - (void)playMode
 {
-  self.playView = [[MPMoviePlayerController alloc] init];
-  [self.playView setControlStyle:MPMovieControlModeVolumeOnly];
+  [self.recordView removeFromSuperlayer];
+  [[self.recordView session] stopRunning];
+  self.recordView = nil;
+  [self.packetizer recordFrom:nil];
+  
+  if (!self.playView) {
+    self.playView = [[MPMoviePlayerController alloc] init];
+    [self.playView setControlStyle:MPMovieControlModeVolumeOnly];
+  }
 
   // Connect to the player.
   [self.player playTo:self.playView];
@@ -166,20 +174,17 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [self.activityIndicator stopAnimating];
 }
 
-- (IBAction)toggle:(UISwitch *)sender {
-    
-    PBRNetworkManager* net = [self network];  
-    
-    if ([net.destinations count] > 0) {
-        [self recordMode];
-    } else {
-        [self playMode];
-    }
-  if([sender isOn]) {
-    [self.packetizer setActive:YES];
+- (IBAction)toggleActive:(UISwitch *)sender {
+  [self.packetizer setActive:[sender isOn]];
+}
+
+- (IBAction)toggleMode:(UISwitch *)sender {
+  if ([sender isOn]) {
+    [self recordMode];
   } else {
-    [self.packetizer setActive:NO];
+    [self playMode];
   }
+  [self.network setMode:[sender isOn]];
 }
 
 - (PBRAVPacketizer*) packetizer
@@ -203,7 +208,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 - (PBRNetworkManager*) network
 {
   if (!_network) {
-      _network = [[PBRNetworkManager alloc] initWithServer:[NSURL URLWithString:(NSString*)serverAddress]mode:[self.clientMode isOn]];
+      _network = [[PBRNetworkManager alloc] initWithServer:[NSURL URLWithString:(NSString*)serverAddress]];
   }
   return _network;
 }

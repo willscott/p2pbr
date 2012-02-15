@@ -13,7 +13,7 @@
 @property (strong,nonatomic) NSMutableArray* sourceSockets;
 @property (nonatomic) int segmentLength;
 
--(void) pollServer:(BOOL)mode;
+-(void) pollServer;
 
 @end
 
@@ -23,57 +23,65 @@
 @synthesize receiveSocket = _receiveSocket;
 @synthesize sourceHosts = _sourceHosts;
 @synthesize destinations = _destinations;
+@synthesize mode = _mode;
 
 @synthesize sourceSockets = _sourceSockets;
 @synthesize segmentLength = _segmentLength;
 @synthesize segment = _segment;
 
--(id) initWithServer:(NSURL*)server mode:(BOOL)mode
+-(id) initWithServer:(NSURL*)server
 {
   self = [self init];
   if (self) {
     self.server = server;
-      [self pollServer:mode];
+      [self pollServer];
   }
   return self;
 }
 
--(void) pollServer:(BOOL)mode
+-(void) pollServer
 {
   UInt16 port = [self.receiveSocket localPort];
   //Periodically should dispatch a poll.
   NSMutableURLRequest* req = [[NSMutableURLRequest alloc] initWithURL:self.server];
-    NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:mode],@"mode",[NSNumber numberWithInt:port],@"port", nil];
+    NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:self.mode],@"mode",[NSNumber numberWithInt:port],@"port", nil];
     NSData* payload = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
     [req setHTTPMethod:@"POST"];
     [req setHTTPBody:payload];
     
-//  [req addValue:[NSString stringWithFormat:@"%u", port] forHTTPHeaderField:@"x-local-port"];
-  NSURLResponse* response;
-  NSData* data = [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:nil];
-  id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-  if ([parsed isKindOfClass:[NSDictionary class]]) {
+  [NSURLConnection sendAsynchronousRequest:req queue:nil completionHandler:^(NSURLResponse* resp, NSData* data, NSError* err) {
+    if (err) {
+      NSLog(@"Failed to connect to server: %@", err);
+      return;
+    }
+
+    id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    if (![parsed isKindOfClass:[NSDictionary class]]) {
+      NSLog(@"Didn't end up with a valid dictionary.  got %@", parsed);
+    }
+
     NSArray* dests = [parsed valueForKey:@"put"];
+    [self.destinations removeAllObjects];
     [dests enumerateObjectsUsingBlock:^(NSArray* dest, NSUInteger idx, BOOL *stop) {
       if (![dest isKindOfClass:[NSArray class]]) {
         return;
       }
       NSString* host = [dest objectAtIndex:0];
       NSNumber* port = [dest objectAtIndex:1];
-      
+        
       AsyncSocket* sock = [[AsyncSocket alloc] initWithDelegate:self];
       [sock connectToHost:host onPort:[port intValue] error:nil];
       [self.destinations addObject:sock];
     }];
-
+      
     NSArray* srcs = [parsed valueForKey:@"get"];
+    [self.sourceHosts removeAllObjects];
+    [self.sourceSockets removeAllObjects];
     [srcs enumerateObjectsUsingBlock:^(NSString* src, NSUInteger idx, BOOL *stop) {
       [self.sourceHosts addObject:src];
     }];
     NSLog(@"Loaded %d destinations and %d sources.",[self.destinations count],[self.sourceHosts count]);
-  } else {
-    NSLog(@"Didn't end up with a valid dictionary.  got %@", parsed);
-  }
+  }];
 }
 
 -(void) sendData:(NSData *)data
@@ -86,6 +94,12 @@
     [obj writeData:length withTimeout:1000 tag:random()];
     [obj writeData:data withTimeout:1000 tag:random()];
   }];
+}
+
+-(void) setMode:(BOOL)mode
+{
+  _mode = mode;
+  [self pollServer];
 }
 
 -(NSMutableArray*)destinations
