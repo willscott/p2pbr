@@ -138,6 +138,7 @@
   NSLog(@"Got %d bytes of data", [data length]);
 }
 
+
 - (void)onSocket:(AsyncSocket *)sock willDisconnectWithError:(NSError *)err
 {
   NSLog(@"Socket to %@ disconnecting due to %@", [sock connectedHost], err);
@@ -152,6 +153,11 @@
   }
   [newSocket setDelegate:self];
   [self.sourceSockets addObject:newSocket];
+}
+
+- (BOOL)onSocketWillConnect:(AsyncSocket *)sock
+{
+  return YES;
 }
 
 - (void)onSocket:(AsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
