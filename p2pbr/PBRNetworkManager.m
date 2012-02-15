@@ -132,12 +132,11 @@
   NSLog(@"Wrote parital data of length %d", partialLength);  
 }
 
-- (void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
+-(void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-
-  NSLog(@"Got %d bytes of data", [data length]);
+  [sock readDataToLength:2048 withTimeout:1000 tag:random()];
+  NSLog(@"Read data of length %d", [data length]);
 }
-
 
 - (void)onSocket:(AsyncSocket *)sock willDisconnectWithError:(NSError *)err
 {
@@ -167,6 +166,7 @@
       NSLog(@"Unexpected source connection. Should probably stop this.");
     } else {
       NSLog(@"Successfully got connection from %@", host);
+      [sock readDataToLength:2048 withTimeout:1000 tag:random()];
     }
   }
 }
