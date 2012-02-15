@@ -70,8 +70,10 @@
 -(void) sendData:(NSData *)data
 {
   int len = [data length];
+  NSLog(@"send data of length %d", len);
   NSData* length = [NSData dataWithBytes:&len length:sizeof(int)];
   [self.destinations enumerateObjectsUsingBlock:^(AsyncSocket* obj, NSUInteger idx, BOOL *stop) {
+    NSLog(@"Sending data to destination at %@",[obj connectedHost]);
     [obj writeData:length withTimeout:1000 tag:random()];
     [obj writeData:data withTimeout:1000 tag:random()];
   }];
@@ -115,19 +117,30 @@
   return _receiveSocket;
 }
 
-- (void)onSocket:(AsyncSocket *)sock didSendDataWithTag:(long)tag
+- (void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
+  NSLog(@"Success sending data.");
 }
 
-- (void)onSocket:(AsyncSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error;
+- (void)onSocket:(AsyncSocket *)sock didReadPartialDataOfLength:(NSUInteger)partialLength tag:(long)tag
 {
-  NSLog(@"Error sending:%@",error);
+  NSLog(@"Got parital data of length %d", partialLength);
+}
+
+- (void)onSocket:(AsyncSocket *)sock didWritePartialDataOfLength:(NSUInteger)partialLength tag:(long)tag
+{
+  NSLog(@"Wrote parital data of length %d", partialLength);  
 }
 
 - (void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
 
   NSLog(@"Got %d bytes of data", [data length]);
+}
+
+- (void)onSocket:(AsyncSocket *)sock willDisconnectWithError:(NSError *)err
+{
+  NSLog(@"Socket to %@ disconnecting due to %@", [sock connectedHost], err);
 }
 
 - (void)onSocket:(AsyncSocket *)sock didAcceptNewSocket:(AsyncSocket *)newSocket
