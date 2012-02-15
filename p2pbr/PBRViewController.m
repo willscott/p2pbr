@@ -8,27 +8,35 @@
 
 #import "PBRViewController.h"
 #include "PBRAVPacketizer.h"
+#import "PBRAVPlayer.h"
 #import "PBRNetworkManager.h"
 
 //const NSString* serverAddress = @"http://www.quimian.com/p2pbr.txt";
 const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/";
 
 @interface PBRViewController()
-@property (strong, nonatomic) AVCaptureVideoPreviewLayer* localVideo;
+@property (strong, nonatomic) AVCaptureVideoPreviewLayer* recordView;
+@property (strong, nonatomic) MPMoviePlayerController* playView;
+
 @property (strong, nonatomic) PBRAVPacketizer* packetizer;
+@property (strong, nonatomic) PBRAVPlayer* player;
 @property (strong, nonatomic) PBRNetworkManager* network;
 
 - (void) didRotate:(NSNotification *)notification;
 - (void) recordMode;
+- (void) playMode;
 
 @end
 
 @implementation PBRViewController
 @synthesize activityIndicator = _activityIndicator;
 @synthesize preview = _preview;
+@synthesize clientMode = _clientMode;
 
-@synthesize localVideo = _localVideo;
+@synthesize recordView = _recordView;
+@synthesize playView = _playView;
 @synthesize packetizer = _packetizer;
+@synthesize player = _player;
 @synthesize network = _network;
 
 - (void)didReceiveMemoryWarning
@@ -48,6 +56,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 {
   [self setActivityIndicator:nil];
   [self setPreview:nil];
+  [self setClientMode:nil];
   [super viewDidUnload];
 }
 
@@ -91,6 +100,8 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   
   if ([net.destinations count] > 0) {
     [self recordMode];
+  } else {
+    [self playMode];
   }
 }
 
@@ -107,7 +118,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   }
   
   // The local preview view.
-  self.localVideo = [[AVCaptureVideoPreviewLayer alloc] initWithSession:newCaptureSession];
+  self.recordView = [[AVCaptureVideoPreviewLayer alloc] initWithSession:newCaptureSession];
   CALayer *viewLayer = [self.preview layer];
   [viewLayer setMasksToBounds:YES];
   
@@ -124,11 +135,11 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [self.packetizer recordFrom:output];
   
   [self didRotate:nil];
-  [self.localVideo setFrame:[self.preview bounds]];
+  [self.recordView setFrame:[self.preview bounds]];
   
-  [self.localVideo setVideoGravity:AVLayerVideoGravityResizeAspect];
+  [self.recordView setVideoGravity:AVLayerVideoGravityResizeAspect];
   
-  [viewLayer insertSublayer:self.localVideo below:[[viewLayer sublayers] objectAtIndex:0]];
+  [viewLayer insertSublayer:self.recordView below:[[viewLayer sublayers] objectAtIndex:0]];
   
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [newCaptureSession startRunning];
@@ -137,7 +148,13 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
 - (void)playMode
 {
+  self.playView = [[MPMoviePlayerController alloc] init];
+  [self.playView setControlStyle:MPMovieControlModeVolumeOnly];
+
+  // Connect to the player.
+  [self.player playTo:self.playView];
   
+  [self.preview addSubview:[self.playView view]];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -172,6 +189,15 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   return _packetizer;
 }
 
+- (PBRAVPlayer*) player
+{
+  if (!_player) {
+    _player = [[PBRAVPlayer alloc] init];
+    [_player setSocket:self.network];
+  }
+  return _player;
+}
+
 - (PBRNetworkManager*) network
 {
   if (!_network) {
@@ -188,9 +214,9 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 - (void) didRotate:(NSNotification *)notification {
   UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
   if (orientation == UIDeviceOrientationLandscapeLeft) {
-    [self.localVideo setOrientation:AVCaptureVideoOrientationLandscapeRight];
+    [self.recordView setOrientation:AVCaptureVideoOrientationLandscapeRight];
   } else if (orientation == UIDeviceOrientationLandscapeRight) {
-    [self.localVideo setOrientation:AVCaptureVideoOrientationLandscapeLeft];
+    [self.recordView setOrientation:AVCaptureVideoOrientationLandscapeLeft];
   }
 }
 

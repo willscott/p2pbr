@@ -16,6 +16,8 @@
 @property (strong, nonatomic) NSMutableArray* sourceHosts;
 @property (strong, nonatomic) NSMutableArray* destinations;
 
+@property (strong,nonatomic) NSMutableData* segment;
+
 -(id) initWithServer:(NSURL*)server;
 -(void) sendData:(NSData*)data;
 

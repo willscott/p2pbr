@@ -11,6 +11,7 @@
 @interface PBRNetworkManager()
 
 @property (strong,nonatomic) NSMutableArray* sourceSockets;
+@property (nonatomic) int segmentLength;
 
 -(void) pollServer;
 
@@ -21,8 +22,11 @@
 @synthesize server = _server;
 @synthesize receiveSocket = _receiveSocket;
 @synthesize sourceHosts = _sourceHosts;
-@synthesize sourceSockets = _sourceSockets;
 @synthesize destinations = _destinations;
+
+@synthesize sourceSockets = _sourceSockets;
+@synthesize segmentLength = _segmentLength;
+@synthesize segment = _segment;
 
 -(id) initWithServer:(NSURL*)server
 {
@@ -122,6 +126,7 @@
   NSLog(@"Success sending data.");
 }
 
+/*
 - (void)onSocket:(AsyncSocket *)sock didReadPartialDataOfLength:(NSUInteger)partialLength tag:(long)tag
 {
   NSLog(@"Got parital data of length %d", partialLength);
@@ -131,11 +136,42 @@
 {
   NSLog(@"Wrote parital data of length %d", partialLength);  
 }
+*/
 
 -(void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-  [sock readDataToLength:2048 withTimeout:1000 tag:random()];
-  NSLog(@"Read data of length %d", [data length]);
+  if (!self.segment) {
+    int headerLength = sizeof(int);
+    int newlength;
+    [data getBytes:&newlength length:headerLength];
+    self.segmentLength = 0;
+    self.segment = [[NSMutableData alloc] initWithLength:newlength];
+    [self onSocket:sock didReadData:[data subdataWithRange:NSMakeRange(headerLength, [data length] - headerLength)] withTag:tag];
+    return;
+  }
+
+  BOOL done = NO;
+  int len = [data length];
+  if (self.segmentLength + len >= [self.segment length]) {
+    done = YES;
+    len = [self.segment length] - self.segmentLength;
+  }
+  [self.segment replaceBytesInRange:NSMakeRange(self.segmentLength, len) withBytes:[data bytes]];
+  self.segmentLength += len;
+  
+  if (done) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRSegmentReady" object:self];
+    if (len < [data length]) {
+      NSLog(@"De-synced D:");
+    }
+  }
+  
+  int next = 4096;
+  if (!done && [self.segment length] - self.segmentLength < next)
+  {
+    next = [self.segment length] - self.segmentLength;
+  }
+  [sock readDataToLength:next withTimeout:1000 tag:random()];
 }
 
 - (void)onSocket:(AsyncSocket *)sock willDisconnectWithError:(NSError *)err

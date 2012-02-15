@@ -22,6 +22,10 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             </view>
+                            <switch opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="VMg-H1-6eW">
+                                <rect key="frame" x="100" y="10" width="79" height="27"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </switch>
                             <switch opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="15d-Eb-5cy">
                                 <rect key="frame" x="10" y="10" width="79" height="27"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -34,6 +38,7 @@
                     </view>
                     <connections>
                         <outlet property="activityIndicator" destination="Adr-84-gR8" id="7Vj-6U-PqO"/>
+                        <outlet property="clientMode" destination="VMg-H1-6eW" id="4J6-ZW-vnQ"/>
                         <outlet property="preview" destination="7Pn-Ii-cjN" id="Us6-hJ-lON"/>
                     </connections>
                 </viewController>
@@ -45,6 +50,7 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/PBRViewController.h"/>
             <relationships>
                 <relationship kind="outlet" name="activityIndicator" candidateClass="UIActivityIndicatorView"/>
+                <relationship kind="outlet" name="clientMode" candidateClass="UISwitch"/>
                 <relationship kind="outlet" name="preview" candidateClass="UIView"/>
             </relationships>
         </class>
