@@ -43,9 +43,12 @@
   NSURLResponse* response;
   NSData* data = [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:nil];
   id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-  if ([parsed isMemberOfClass:[NSDictionary class]]) {
+  if ([parsed isKindOfClass:[NSDictionary class]]) {
     NSArray* dests = [parsed valueForKey:@"put"];
     [dests enumerateObjectsUsingBlock:^(NSArray* dest, NSUInteger idx, BOOL *stop) {
+      if (![dest isKindOfClass:[NSArray class]]) {
+        return;
+      }
       NSString* host = [dest objectAtIndex:0];
       NSNumber* port = [dest objectAtIndex:1];
       
@@ -59,6 +62,8 @@
       [self.sourceHosts addObject:src];
     }];
     NSLog(@"Loaded %d destinations and %d sources.",[self.destinations count],[self.sourceHosts count]);
+  } else {
+    NSLog(@"Didn't end up with a valid dictionary.  got %@", parsed);
   }
 }
 
