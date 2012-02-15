@@ -96,13 +96,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 {
   [super viewDidAppear:animated];
   [self.activityIndicator startAnimating];
-  PBRNetworkManager* net = [self network];  
   
-  if ([net.destinations count] > 0) {
-    [self recordMode];
-  } else {
-    [self playMode];
-  }
 }
 
 - (void)recordMode
@@ -173,6 +167,14 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 }
 
 - (IBAction)toggle:(UISwitch *)sender {
+    
+    PBRNetworkManager* net = [self network];  
+    
+    if ([net.destinations count] > 0) {
+        [self recordMode];
+    } else {
+        [self playMode];
+    }
   if([sender isOn]) {
     [self.packetizer setActive:YES];
   } else {
@@ -201,7 +203,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 - (PBRNetworkManager*) network
 {
   if (!_network) {
-    _network = [[PBRNetworkManager alloc] initWithServer:[NSURL URLWithString:(NSString*)serverAddress]];
+      _network = [[PBRNetworkManager alloc] initWithServer:[NSURL URLWithString:(NSString*)serverAddress]mode:[self.clientMode isOn]];
   }
   return _network;
 }

@@ -13,7 +13,7 @@
 @property (strong,nonatomic) NSMutableArray* sourceSockets;
 @property (nonatomic) int segmentLength;
 
--(void) pollServer;
+-(void) pollServer:(BOOL)mode;
 
 @end
 
@@ -28,22 +28,27 @@
 @synthesize segmentLength = _segmentLength;
 @synthesize segment = _segment;
 
--(id) initWithServer:(NSURL*)server
+-(id) initWithServer:(NSURL*)server mode:(BOOL)mode
 {
   self = [self init];
   if (self) {
     self.server = server;
-    [self pollServer];
+      [self pollServer:mode];
   }
   return self;
 }
 
--(void) pollServer
+-(void) pollServer:(BOOL)mode
 {
   UInt16 port = [self.receiveSocket localPort];
   //Periodically should dispatch a poll.
   NSMutableURLRequest* req = [[NSMutableURLRequest alloc] initWithURL:self.server];
-  [req addValue:[NSString stringWithFormat:@"%u", port] forHTTPHeaderField:@"x-local-port"];
+    NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:mode],@"mode",[NSNumber numberWithInt:port],@"port", nil];
+    NSData* payload = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
+    [req setHTTPMethod:@"POST"];
+    [req setHTTPBody:payload];
+    
+//  [req addValue:[NSString stringWithFormat:@"%u", port] forHTTPHeaderField:@"x-local-port"];
   NSURLResponse* response;
   NSData* data = [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:nil];
   id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];

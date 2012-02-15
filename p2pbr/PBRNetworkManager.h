@@ -18,7 +18,7 @@
 
 @property (strong,nonatomic) NSMutableData* segment;
 
--(id) initWithServer:(NSURL*)server;
+-(id) initWithServer:(NSURL*)server mode:(BOOL)mode;
 -(void) sendData:(NSData*)data;
 
 @end
