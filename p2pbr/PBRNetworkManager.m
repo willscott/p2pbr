@@ -12,6 +12,7 @@
 
 @property (strong,nonatomic) NSMutableArray* sourceSockets;
 @property (nonatomic) int segmentLength;
+@property (nonatomic) dispatch_queue_t socketQueue;
 
 -(void) pollServer;
 
@@ -28,6 +29,7 @@
 @synthesize sourceSockets = _sourceSockets;
 @synthesize segmentLength = _segmentLength;
 @synthesize segment = _segment;
+@synthesize socketQueue = _socketQueue;
 
 -(id) initWithServer:(NSURL*)server
 {
@@ -69,8 +71,8 @@
       }
       NSString* host = [dest objectAtIndex:0];
       NSNumber* port = [dest objectAtIndex:1];
-        
-      AsyncSocket* sock = [[AsyncSocket alloc] initWithDelegate:self];
+  
+      GCDAsyncSocket* sock = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
       [sock connectToHost:host onPort:[port intValue] error:nil];
       [self.destinations addObject:sock];
     }];
@@ -89,7 +91,7 @@
 {
   int len = [data length];
   NSData* length = [NSData dataWithBytes:&len length:sizeof(int)];
-  [self.destinations enumerateObjectsUsingBlock:^(AsyncSocket* obj, NSUInteger idx, BOOL *stop) {
+  [self.destinations enumerateObjectsUsingBlock:^(GCDAsyncSocket* obj, NSUInteger idx, BOOL *stop) {
     [obj writeData:length withTimeout:1000 tag:random()];
     [obj writeData:data withTimeout:1000 tag:random()];
   }];
@@ -125,10 +127,13 @@
   return _sourceSockets;
 }
 
--(AsyncSocket*)receiveSocket
+-(GCDAsyncSocket*)receiveSocket
 {
+  if (!self.socketQueue) {
+    self.socketQueue = dispatch_queue_create("pbrsocket", DISPATCH_QUEUE_CONCURRENT);
+  }
   if (!_receiveSocket) {
-    _receiveSocket = [[AsyncSocket alloc] initWithDelegate:self];
+    _receiveSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
     NSError* error;
     [_receiveSocket acceptOnPort:rand() error:&error];
     if (error) {
@@ -139,24 +144,13 @@
   return _receiveSocket;
 }
 
-- (void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag
+
+- (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
   NSLog(@"Success sending data.");
 }
 
-/*
-- (void)onSocket:(AsyncSocket *)sock didReadPartialDataOfLength:(NSUInteger)partialLength tag:(long)tag
-{
-  NSLog(@"Got parital data of length %d", partialLength);
-}
-
-- (void)onSocket:(AsyncSocket *)sock didWritePartialDataOfLength:(NSUInteger)partialLength tag:(long)tag
-{
-  NSLog(@"Wrote parital data of length %d", partialLength);  
-}
-*/
-
--(void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
+-(void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
   if (!self.segment) {
     int headerLength = sizeof(int);
@@ -164,7 +158,7 @@
     [data getBytes:&newlength length:headerLength];
     self.segmentLength = 0;
     self.segment = [[NSMutableData alloc] initWithLength:newlength];
-    [self onSocket:sock didReadData:[data subdataWithRange:NSMakeRange(headerLength, [data length] - headerLength)] withTag:tag];
+    [self socket:sock didReadData:[data subdataWithRange:NSMakeRange(headerLength, [data length] - headerLength)] withTag:tag];
     return;
   }
 
@@ -192,28 +186,28 @@
   [sock readDataToLength:next withTimeout:1000 tag:random()];
 }
 
-- (void)onSocket:(AsyncSocket *)sock willDisconnectWithError:(NSError *)err
+- (void)socket:(GCDAsyncSocket *)sock willDisconnectWithError:(NSError *)err
 {
   NSLog(@"Socket to %@ disconnecting due to %@", [sock connectedHost], err);
 }
 
-- (void)onSocket:(AsyncSocket *)sock didAcceptNewSocket:(AsyncSocket *)newSocket
+- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
 {
   if (sock != self.receiveSocket)
   {
     NSLog(@"Unexpected accept received from unbound socket %@", sock);
     return;
   }
-  [newSocket setDelegate:self];
+  [newSocket setDelegate:self delegateQueue:self.socketQueue];
   [self.sourceSockets addObject:newSocket];
 }
 
-- (BOOL)onSocketWillConnect:(AsyncSocket *)sock
+- (BOOL)onSocketWillConnect:(GCDAsyncSocket *)sock
 {
   return YES;
 }
 
-- (void)onSocket:(AsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
+- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
   if ([self.sourceSockets containsObject:sock]) {
     if (![self.sourceHosts containsObject:host]) {

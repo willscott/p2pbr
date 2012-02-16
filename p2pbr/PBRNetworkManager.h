@@ -7,12 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AsyncSocket.h"
+#import "GCDAsyncSocket.h"
 
-@interface PBRNetworkManager : NSObject <AsyncSocketDelegate>
+@interface PBRNetworkManager : NSObject <GCDAsyncSocketDelegate>
 
 @property (strong, nonatomic) NSURL* server;
-@property (strong, nonatomic) AsyncSocket* receiveSocket;
+@property (strong, nonatomic) GCDAsyncSocket* receiveSocket;
 @property (strong, nonatomic) NSMutableArray* sourceHosts;
 @property (strong, nonatomic) NSMutableArray* destinations;
 @property (nonatomic) BOOL mode;

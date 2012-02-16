@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		931B019014EDBD6B00326403 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 931B018D14EDBD6B00326403 /* GCDAsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		931B019114EDBD6B00326403 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 931B018F14EDBD6B00326403 /* GCDAsyncUdpSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		9344659614D89EBF007C028A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659514D89EBF007C028A /* UIKit.framework */; };
 		9344659814D89EBF007C028A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659714D89EBF007C028A /* Foundation.framework */; };
 		9344659A14D89EBF007C028A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659914D89EBF007C028A /* CoreGraphics.framework */; };
@@ -25,8 +27,6 @@
 		934465E114D8EA3F007C028A /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E014D8EA3F007C028A /* CoreMedia.framework */; };
 		934465E514D8FA7A007C028A /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E414D8FA7A007C028A /* CFNetwork.framework */; };
 		934465E614D8FA99007C028A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E214D8F9B3007C028A /* Security.framework */; };
-		936E489A14E0848C0021A3AF /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489714E0848C0021A3AF /* AsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 936E489914E0848C0021A3AF /* AsyncUdpSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		93C5E7DD14EAD9B400D3A953 /* PBRAVPacketizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E7DC14EAD9B400D3A953 /* PBRAVPacketizer.m */; };
 		93C5E7E014EAEA0900D3A953 /* PBRNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E7DF14EAEA0900D3A953 /* PBRNetworkManager.m */; };
 		93C5E7E214EB1CEB00D3A953 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C5E7E114EB1CEB00D3A953 /* MediaPlayer.framework */; };
@@ -45,6 +45,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		931B018C14EDBD6B00326403 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = CocoaAsyncSocket/GCD/GCDAsyncSocket.h; sourceTree = "<group>"; };
+		931B018D14EDBD6B00326403 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = CocoaAsyncSocket/GCD/GCDAsyncSocket.m; sourceTree = "<group>"; };
+		931B018E14EDBD6B00326403 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncUdpSocket.h; path = CocoaAsyncSocket/GCD/GCDAsyncUdpSocket.h; sourceTree = "<group>"; };
+		931B018F14EDBD6B00326403 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncUdpSocket.m; path = CocoaAsyncSocket/GCD/GCDAsyncUdpSocket.m; sourceTree = "<group>"; };
 		9344659114D89EBF007C028A /* p2pbr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = p2pbr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9344659514D89EBF007C028A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9344659714D89EBF007C028A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -69,10 +73,6 @@
 		934465E014D8EA3F007C028A /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		934465E214D8F9B3007C028A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		934465E414D8FA7A007C028A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
-		936E489614E0848C0021A3AF /* AsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AsyncSocket.h; path = CocoaAsyncSocket/RunLoop/AsyncSocket.h; sourceTree = "<group>"; };
-		936E489714E0848C0021A3AF /* AsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncSocket.m; path = CocoaAsyncSocket/RunLoop/AsyncSocket.m; sourceTree = "<group>"; };
-		936E489814E0848C0021A3AF /* AsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AsyncUdpSocket.h; path = CocoaAsyncSocket/RunLoop/AsyncUdpSocket.h; sourceTree = "<group>"; };
-		936E489914E0848C0021A3AF /* AsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncUdpSocket.m; path = CocoaAsyncSocket/RunLoop/AsyncUdpSocket.m; sourceTree = "<group>"; };
 		93C5E7DB14EAD9B400D3A953 /* PBRAVPacketizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRAVPacketizer.h; sourceTree = "<group>"; };
 		93C5E7DC14EAD9B400D3A953 /* PBRAVPacketizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRAVPacketizer.m; sourceTree = "<group>"; };
 		93C5E7DE14EAEA0900D3A953 /* PBRNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRNetworkManager.h; sourceTree = "<group>"; };
@@ -203,10 +203,10 @@
 		936E489C14E084900021A3AF /* CococaAsyncSocket */ = {
 			isa = PBXGroup;
 			children = (
-				936E489614E0848C0021A3AF /* AsyncSocket.h */,
-				936E489714E0848C0021A3AF /* AsyncSocket.m */,
-				936E489814E0848C0021A3AF /* AsyncUdpSocket.h */,
-				936E489914E0848C0021A3AF /* AsyncUdpSocket.m */,
+				931B018C14EDBD6B00326403 /* GCDAsyncSocket.h */,
+				931B018D14EDBD6B00326403 /* GCDAsyncSocket.m */,
+				931B018E14EDBD6B00326403 /* GCDAsyncUdpSocket.h */,
+				931B018F14EDBD6B00326403 /* GCDAsyncUdpSocket.m */,
 			);
 			name = CococaAsyncSocket;
 			sourceTree = "<group>";
@@ -321,11 +321,11 @@
 				934465A214D89EBF007C028A /* main.m in Sources */,
 				934465A614D89EBF007C028A /* PBRAppDelegate.m in Sources */,
 				934465AF14D89EBF007C028A /* PBRViewController.m in Sources */,
-				936E489A14E0848C0021A3AF /* AsyncSocket.m in Sources */,
-				936E489B14E0848C0021A3AF /* AsyncUdpSocket.m in Sources */,
 				93C5E7DD14EAD9B400D3A953 /* PBRAVPacketizer.m in Sources */,
 				93C5E7E014EAEA0900D3A953 /* PBRNetworkManager.m in Sources */,
 				93C5E7E514EB41F000D3A953 /* PBRAVPlayer.m in Sources */,
+				931B019014EDBD6B00326403 /* GCDAsyncSocket.m in Sources */,
+				931B019114EDBD6B00326403 /* GCDAsyncUdpSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
