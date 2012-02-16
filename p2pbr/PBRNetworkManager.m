@@ -48,8 +48,9 @@
     NSData* payload = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
     [req setHTTPMethod:@"POST"];
     [req setHTTPBody:payload];
-    
-  [NSURLConnection sendAsynchronousRequest:req queue:nil completionHandler:^(NSURLResponse* resp, NSData* data, NSError* err) {
+
+  NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+  [NSURLConnection sendAsynchronousRequest:req queue:queue completionHandler:^(NSURLResponse* resp, NSData* data, NSError* err) {
     if (err) {
       NSLog(@"Failed to connect to server: %@", err);
       return;
