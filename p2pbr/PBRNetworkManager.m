@@ -87,10 +87,8 @@
 -(void) sendData:(NSData *)data
 {
   int len = [data length];
-  NSLog(@"send data of length %d", len);
   NSData* length = [NSData dataWithBytes:&len length:sizeof(int)];
   [self.destinations enumerateObjectsUsingBlock:^(AsyncSocket* obj, NSUInteger idx, BOOL *stop) {
-    NSLog(@"Sending data to destination at %@",[obj connectedHost]);
     [obj writeData:length withTimeout:1000 tag:random()];
     [obj writeData:data withTimeout:1000 tag:random()];
   }];
