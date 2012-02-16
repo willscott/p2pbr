@@ -213,13 +213,14 @@
     NSLog(@"Unexpected accept received from unbound socket %@", sock);
     return;
   }
+  
   [newSocket setDelegate:self delegateQueue:self.delegateQueue];
   [self.sourceSockets addObject:newSocket];
+  [self socket:newSocket didConnectToHost:[newSocket connectedHost] port:[newSocket connectedPort]];
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
-  NSLog(@"did connect to host.");
   if ([self.sourceSockets containsObject:sock]) {
     if (![self.sourceHosts containsObject:host]) {
       NSLog(@"Unexpected source connection. Should probably stop this.");
