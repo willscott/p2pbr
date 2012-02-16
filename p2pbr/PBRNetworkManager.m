@@ -220,8 +220,8 @@
     if (![self.sourceHosts containsObject:host]) {
       NSLog(@"Unexpected source connection. Should probably stop this.");
     } else {
-      NSLog(@"Successfully got connection from %@", host);
-      [sock readDataToLength:2048 withTimeout:1000 tag:random()];
+      NSLog(@"Got connection from %@", host);
+      [sock readDataToLength:4096 withTimeout:1000 tag:random()];
     }
   }
 }
