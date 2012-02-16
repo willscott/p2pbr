@@ -12,6 +12,7 @@
 
 @property (strong,nonatomic) NSMutableArray* sourceSockets;
 @property (nonatomic) int segmentLength;
+@property (nonatomic) dispatch_queue_t delegateQueue;
 @property (nonatomic) dispatch_queue_t socketQueue;
 
 -(void) pollServer;
@@ -30,6 +31,7 @@
 @synthesize segmentLength = _segmentLength;
 @synthesize segment = _segment;
 @synthesize socketQueue = _socketQueue;
+@synthesize delegateQueue = _delegateQueue;
 
 -(id) initWithServer:(NSURL*)server
 {
@@ -79,6 +81,9 @@
       
     NSArray* srcs = [parsed valueForKey:@"get"];
     [self.sourceHosts removeAllObjects];
+    [self.sourceSockets enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      dispatch_release(self.socketQueue);
+    }];
     [self.sourceSockets removeAllObjects];
     [srcs enumerateObjectsUsingBlock:^(NSString* src, NSUInteger idx, BOOL *stop) {
       [self.sourceHosts addObject:src];
@@ -130,10 +135,14 @@
 -(GCDAsyncSocket*)receiveSocket
 {
   if (!self.socketQueue) {
-    self.socketQueue = dispatch_queue_create("pbrsocket", DISPATCH_QUEUE_CONCURRENT);
+    self.socketQueue = dispatch_queue_create("pbrsocket", NULL);
+    dispatch_retain(self.socketQueue);
+  }
+  if (!self.delegateQueue) {
+    self.delegateQueue = dispatch_queue_create("pbrnetwork", NULL);
   }
   if (!_receiveSocket) {
-    _receiveSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
+    _receiveSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.delegateQueue socketQueue:self.socketQueue];
     NSError* error;
     [_receiveSocket acceptOnPort:rand() error:&error];
     if (error) {
@@ -191,6 +200,12 @@
   NSLog(@"Socket to %@ disconnecting due to %@", [sock connectedHost], err);
 }
 
+- (dispatch_queue_t)newSocketQueueForConnectionFromAddress:(NSData *)address onSocket:(GCDAsyncSocket *)sock
+{
+  dispatch_retain(self.socketQueue);
+  return self.socketQueue;
+}
+
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
 {
   if (sock != self.receiveSocket)
@@ -198,17 +213,13 @@
     NSLog(@"Unexpected accept received from unbound socket %@", sock);
     return;
   }
-  [newSocket setDelegate:self delegateQueue:self.socketQueue];
+  [newSocket setDelegate:self delegateQueue:self.delegateQueue];
   [self.sourceSockets addObject:newSocket];
-}
-
-- (BOOL)onSocketWillConnect:(GCDAsyncSocket *)sock
-{
-  return YES;
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
+  NSLog(@"did connect to host.");
   if ([self.sourceSockets containsObject:sock]) {
     if (![self.sourceHosts containsObject:host]) {
       NSLog(@"Unexpected source connection. Should probably stop this.");
