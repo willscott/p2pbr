@@ -149,14 +149,32 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [self.packetizer recordFrom:nil];
   
   if (!self.playView) {
-    self.playView = [[MPMoviePlayerController alloc] init];
-    [self.playView setControlStyle:MPMovieControlModeVolumeOnly];
+    NSURL* loadingUrl = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"loading" ofType:@"m4v"]];
+
+    self.playView = [[MPMoviePlayerController alloc] initWithContentURL:loadingUrl];
+    [self.playView setContentURL:loadingUrl];        
+    [self.playView setMovieSourceType:MPMovieSourceTypeFile];
+    [self.playView setControlStyle:MPMovieControlStyleNone];
+    [self.playView setRepeatMode:MPMovieRepeatModeOne];
+    [self.playView setShouldAutoplay:YES];
+    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(showPlayView) userInfo:nil repeats:NO];
   }
 
   // Connect to the player.
   [self.player playTo:self.playView];
-  
-  [self.preview addSubview:[self.playView view]];
+}
+
+- (void) showPlayView
+{
+  if ([self.playView loadState] == MPMovieLoadStateUnknown) {
+    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(showPlayView) userInfo:nil repeats:NO];
+    return;
+  }
+
+  if (true) {
+    [self.playView.view setFrame:self.preview.bounds];
+    [self.preview addSubview:[self.playView view]];    
+  }
 }
 
 - (void)viewWillDisappear:(BOOL)animated

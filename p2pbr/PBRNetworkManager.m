@@ -167,12 +167,14 @@
     [data getBytes:&newlength length:headerLength];
     self.segmentLength = 0;
     self.segment = [[NSMutableData alloc] initWithLength:newlength];
+    NSLog(@"Reading new chunk of length %d", newlength);
     [self socket:sock didReadData:[data subdataWithRange:NSMakeRange(headerLength, [data length] - headerLength)] withTag:tag];
     return;
   }
 
   BOOL done = NO;
   int len = [data length];
+  //NSLog(@"Read State: %d/%d",self.segmentLength,[self.segment length]);
   if (self.segmentLength + len >= [self.segment length]) {
     done = YES;
     len = [self.segment length] - self.segmentLength;
@@ -183,7 +185,7 @@
   if (done) {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRSegmentReady" object:self];
     if (len < [data length]) {
-      NSLog(@"De-synced D:");
+      NSLog(@"De-synced D: [%d < %d]", len, [data length]);
     }
   }
   

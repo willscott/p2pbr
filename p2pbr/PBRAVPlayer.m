@@ -13,7 +13,7 @@
 @property (weak, nonatomic) MPMoviePlayerController* output;
 @property (strong, nonatomic) NSURL* currentSegment;
 
--(void)onFile:(NSNotification*)note;
+-(void)onFileReceivedFromSource:(NSNotification*)note;
 -(void)moviePlayerLoadStateChanged:(NSNotification*)note;
 -(void)moviePlayBackDidFinish:(NSNotification*)note;
 -(NSURL*) getTemporaryFile;
@@ -57,7 +57,7 @@ BOOL pending = NO;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PBRSegmentReady" object:_socket];
   }
   _socket = socket;
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onFile:) name:@"PBRSegmentReady" object:socket];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onFileReceivedFromSource:) name:@"PBRSegmentReady" object:socket];
 }
 
 -(NSURL*) getTemporaryFile
@@ -78,22 +78,30 @@ BOOL pending = NO;
   return result;
 }
 
--(void)onFile:(NSNotification*)note
+-(void)onFileReceivedFromSource:(NSNotification*)note
 {
+  NSLog(@"Play Notification.");
   if (self.currentSegment == nil)
   {
     self.currentSegment = [self getTemporaryFile];
-    [[self.socket segment] writeToURL:self.currentSegment atomically:NO];
+    NSData* segment = [self.socket segment];
+    self.socket.segment = nil;
+    [segment writeToURL:self.currentSegment atomically:NO];
+    NSLog(@"Segment stored at %@", self.currentSegment);
     [self.output setContentURL:self.currentSegment];
     [self.output prepareToPlay];
+    [self.output play];
   } else {
-    pending = true;
+    //TODO:handle pending better.
+    //pending = true;
+    self.socket.segment = nil;
   }
 }
 
 -(void)moviePlayerLoadStateChanged:(NSNotification*)note
 {
-  [self.output play];
+  NSLog(@"Player prepared.");
+//  [self.output play];
 }
 
 -(void)moviePlayBackDidFinish:(NSNotification*)note
@@ -108,7 +116,7 @@ BOOL pending = NO;
   
   if (pending) {
     pending = NO;
-    [self onFile:nil];
+    [self onFileReceivedFromSource:nil];
   }
 }
 
