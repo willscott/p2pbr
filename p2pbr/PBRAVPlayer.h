@@ -7,13 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <MediaPlayer/MediaPlayer.h>
+#import <AVFoundation/AVFoundation.h>
 #import "PBRNetworkManager.h"
 
 @interface PBRAVPlayer : NSObject
 
 @property (strong, nonatomic) PBRNetworkManager* socket;
 
--(void)playTo:(MPMoviePlayerController*)dest;
+-(void)playTo:(AVPlayer*)dest;
 
 @end

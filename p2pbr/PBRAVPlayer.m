@@ -10,14 +10,13 @@
 
 @interface PBRAVPlayer()
 
-@property (weak, nonatomic) MPMoviePlayerController* output;
+@property (weak, nonatomic) AVPlayer* output;
 @property (strong, nonatomic) NSURL* currentSegment;
 
 -(void)onFileReceivedFromSource:(NSNotification*)note;
--(void)moviePlayerLoadStateChanged:(NSNotification*)note;
--(void)moviePlayBackDidFinish:(NSNotification*)note;
 -(NSURL*) getTemporaryFile;
 
+-(void)playbackEnd:(NSNotification*)note;
 @end
 
 @implementation PBRAVPlayer
@@ -29,26 +28,21 @@
 
 BOOL pending = NO;
 
--(void)playTo:(MPMoviePlayerController*)dest
+-(void)playTo:(AVPlayer*)dest
 {
   if (self.output)
   {
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:MPMoviePlayerLoadStateDidChangeNotification 
-                                                  object:self.output];
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:MPMoviePlayerPlaybackDidFinishNotification 
-                                                  object:self.output];
+    [self.output pause];
+    if (self.currentSegment) {
+      NSFileManager *fileManager = [NSFileManager defaultManager];
+      if ([fileManager fileExistsAtPath:[self.currentSegment path]]) {
+        [fileManager removeItemAtURL:self.currentSegment error: nil];
+      }
+      self.currentSegment = nil;
+    }
   }
   self.output = dest;
-  [[NSNotificationCenter defaultCenter] addObserver:self 
-                                           selector:@selector(moviePlayerLoadStateChanged:) 
-                                               name:MPMoviePlayerLoadStateDidChangeNotification 
-                                             object:dest];
-  [[NSNotificationCenter defaultCenter] addObserver:self 
-                                           selector:@selector(moviePlayBackDidFinish:) 
-                                               name:MPMoviePlayerPlaybackDidFinishNotification 
-                                             object:dest];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.output.currentItem];
 }
 
 -(void) setSocket:(PBRNetworkManager *)socket
@@ -88,8 +82,12 @@ BOOL pending = NO;
     self.socket.segment = nil;
     [segment writeToURL:self.currentSegment atomically:NO];
     NSLog(@"Segment stored at %@", self.currentSegment);
-    [self.output setContentURL:self.currentSegment];
-    [self.output prepareToPlay];
+  
+    AVPlayerItem* item = [[AVPlayerItem alloc] initWithURL:self.currentSegment];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:item];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.output.currentItem];
+    [self.output replaceCurrentItemWithPlayerItem:item];
+    [self.output seekToTime:CMTimeMake(0, 1)];
     [self.output play];
   } else {
     //TODO:handle pending better.
@@ -98,15 +96,15 @@ BOOL pending = NO;
   }
 }
 
--(void)moviePlayerLoadStateChanged:(NSNotification*)note
+-(void)playbackEnd:(NSNotification*)note
 {
-  NSLog(@"Player prepared.");
-//  [self.output play];
-}
-
--(void)moviePlayBackDidFinish:(NSNotification*)note
-{
-  NSLog(@"Finished segment.");
+  NSLog(@"Finished segment. with info %@", note);
+  if (!self.currentSegment) {
+    // Loading screen.
+    [self.output seekToTime:CMTimeMake(0, 1)];
+    [self.output play];
+    return;
+  }
 
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if ([fileManager fileExistsAtPath:[self.currentSegment path]]) {

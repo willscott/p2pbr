@@ -16,7 +16,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
 @interface PBRViewController()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer* recordView;
-@property (strong, nonatomic) MPMoviePlayerController* playView;
+@property (strong, nonatomic) AVPlayerLayer* playView;
 
 @property (strong, nonatomic) PBRAVPacketizer* packetizer;
 @property (strong, nonatomic) PBRAVPlayer* player;
@@ -92,6 +92,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
 - (void)viewDidAppear:(BOOL)animated
 {
+  [self didRotate:nil];
   [super viewDidAppear:animated];
   [self.activityIndicator startAnimating];
   [self playMode];
@@ -100,7 +101,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 - (void)recordMode
 {
   [self.player playTo:nil];
-  [[self.playView view] removeFromSuperview];
+  [self.playView removeFromSuperlayer];
 
   AVCaptureDeviceInput *newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontFacingCamera] error:nil];
   AVCaptureDeviceInput *newAudioInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self microphone] error:nil];
@@ -129,7 +130,6 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [newCaptureSession addOutput:output];
   [self.packetizer recordFrom:output];
   
-  [self didRotate:nil];
   [self.recordView setFrame:[self.preview bounds]];
   
   [self.recordView setVideoGravity:AVLayerVideoGravityResizeAspect];
@@ -148,33 +148,19 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   self.recordView = nil;
   [self.packetizer recordFrom:nil];
   
-  if (!self.playView) {
-    NSURL* loadingUrl = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"loading" ofType:@"m4v"]];
-
-    self.playView = [[MPMoviePlayerController alloc] initWithContentURL:loadingUrl];
-    [self.playView setContentURL:loadingUrl];        
-    [self.playView setMovieSourceType:MPMovieSourceTypeFile];
-    [self.playView setControlStyle:MPMovieControlStyleNone];
-    [self.playView setRepeatMode:MPMovieRepeatModeOne];
-    [self.playView setShouldAutoplay:YES];
-    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(showPlayView) userInfo:nil repeats:NO];
-  }
+  NSURL* loadingUrl = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"loading" ofType:@"m4v"]];
+  AVPlayer* player = [[AVPlayer alloc] initWithURL:loadingUrl];
 
   // Connect to the player.
-  [self.player playTo:self.playView];
-}
-
-- (void) showPlayView
-{
-  if ([self.playView loadState] == MPMovieLoadStateUnknown) {
-    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(showPlayView) userInfo:nil repeats:NO];
-    return;
-  }
-
-  if (true) {
-    [self.playView.view setFrame:self.preview.bounds];
-    [self.preview addSubview:[self.playView view]];    
-  }
+  [self.player playTo:player];
+  self.playView = [[AVPlayerLayer alloc] init];
+  [self.playView setPlayer:player];
+  [self.playView setFrame:[self.preview bounds]];
+  [self.playView setVideoGravity:AVLayerVideoGravityResizeAspect];
+  CALayer *viewLayer = [self.preview layer];
+  [viewLayer setMasksToBounds:YES];
+  [viewLayer insertSublayer:self.playView below:[[viewLayer sublayers] objectAtIndex:0]];
+  [player play];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
