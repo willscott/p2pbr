@@ -16,6 +16,7 @@
 -(void)onFileReceivedFromSource:(NSNotification*)note;
 -(NSURL*) getTemporaryFile;
 
+-(void)startPlayback:(AVAsset*)asset;
 -(void)playbackEnd:(NSNotification*)note;
 @end
 
@@ -83,28 +84,39 @@ BOOL pending = NO;
     [segment writeToURL:self.currentSegment atomically:NO];
     NSLog(@"Segment stored at %@", self.currentSegment);
   
-    AVPlayerItem* item = [[AVPlayerItem alloc] initWithURL:self.currentSegment];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:item];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.output.currentItem];
-    [self.output replaceCurrentItemWithPlayerItem:item];
-    [self.output seekToTime:CMTimeMake(0, 1)];
-    [self.output play];
+    AVURLAsset* file = [AVURLAsset assetWithURL:self.currentSegment];
+    [file loadValuesAsynchronouslyForKeys:nil completionHandler:^(void) {
+      // Dispatch again to the main queue, in order to properly interact with the UI.
+      dispatch_async(dispatch_get_main_queue(), ^(void) {
+        [self startPlayback:file];
+      });
+    }];
   } else {
     //TODO:handle pending better.
     //pending = true;
     self.socket.segment = nil;
   }
 }
+     
+-(void)startPlayback:(AVAsset*)asset
+{
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.output.currentItem];
+  AVPlayerItem* item = [AVPlayerItem playerItemWithAsset:asset];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:item];
+  [self.output replaceCurrentItemWithPlayerItem:item];
+  [self.output seekToTime:CMTimeMake(0, 1)];
+  [self.output play];
+}
 
 -(void)playbackEnd:(NSNotification*)note
 {
-  NSLog(@"Finished segment. with info %@", note);
   if (!self.currentSegment) {
     // Loading screen.
     [self.output seekToTime:CMTimeMake(0, 1)];
     [self.output play];
     return;
   }
+  NSLog(@"Finished segment. with info %@", note);
 
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if ([fileManager fileExistsAtPath:[self.currentSegment path]]) {
