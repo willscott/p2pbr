@@ -20,6 +20,6 @@
 @property (strong,nonatomic) NSMutableData* segment;
 
 -(id) initWithServer:(NSURL*)server;
--(void) sendData:(NSData*)data;
+-(void) sendData:(NSData*)data andThen:(void (^)(BOOL success))block;
 
 @end

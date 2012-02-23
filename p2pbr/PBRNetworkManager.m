@@ -7,6 +7,9 @@
 //
 
 #import "PBRNetworkManager.h"
+#define DEBUG_STATIC 0
+#define DEBUG_STATIC_SOURCE "128.208.7.219"
+#define DEBUG_STATIC_DEST "128.208.7.124"
 
 @interface PBRNetworkManager()
 
@@ -14,6 +17,7 @@
 @property (nonatomic) int segmentLength;
 @property (nonatomic) dispatch_queue_t delegateQueue;
 @property (nonatomic) dispatch_queue_t socketQueue;
+@property (nonatomic, strong) NSMutableDictionary* outboundQueue;
 
 -(void) pollServer;
 
@@ -32,6 +36,7 @@
 @synthesize segment = _segment;
 @synthesize socketQueue = _socketQueue;
 @synthesize delegateQueue = _delegateQueue;
+@synthesize outboundQueue = _outboundQueue;
 
 -(id) initWithServer:(NSURL*)server
 {
@@ -52,7 +57,22 @@
     NSData* payload = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
     [req setHTTPMethod:@"POST"];
     [req setHTTPBody:payload];
+ 
+#ifdef DEBUG_STATIC
+  if (self.mode) {
+    [self.destinations removeAllObjects];
+    GCDAsyncSocket* sock = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
+    [sock connectToHost:@DEBUG_STATIC_DEST onPort:8080 error:nil];
+    [self.destinations addObject:sock];  
+    @synchronized(self.outboundQueue) {
+      [self.outboundQueue removeAllObjects];
+    }
+  } else {
+    [self.sourceHosts removeAllObjects];
+    [self.sourceHosts addObject:@DEBUG_STATIC_SOURCE];
+  }
 
+#else
   NSOperationQueue *queue = [[NSOperationQueue alloc] init];
   [NSURLConnection sendAsynchronousRequest:req queue:queue completionHandler:^(NSURLResponse* resp, NSData* data, NSError* err) {
     if (err) {
@@ -67,6 +87,9 @@
 
     NSArray* dests = [parsed valueForKey:@"put"];
     [self.destinations removeAllObjects];
+    @synchronized(self.outboundQueue) {
+      [self.outboundQueue removeAllObjects];
+    }
     [dests enumerateObjectsUsingBlock:^(NSArray* dest, NSUInteger idx, BOOL *stop) {
       if (![dest isKindOfClass:[NSArray class]]) {
         return;
@@ -90,15 +113,24 @@
     }];
     NSLog(@"Loaded %d destinations and %d sources.",[self.destinations count],[self.sourceHosts count]);
   }];
+#endif
+
+  // Clear out partial transfers.
+  self.segment = nil;
 }
 
--(void) sendData:(NSData *)data
+-(void) sendData:(NSData *)data andThen:(void (^)(BOOL success))block
 {
+  long tag = random();
+  @synchronized(self.outboundQueue) {
+    [self.outboundQueue setObject:block forKey:[NSNumber numberWithLong:tag+1]];
+  }
+  NSLog(@"Requesting write for tag: %ld", tag);
   int len = [data length];
   NSData* length = [NSData dataWithBytes:&len length:sizeof(int)];
   [self.destinations enumerateObjectsUsingBlock:^(GCDAsyncSocket* obj, NSUInteger idx, BOOL *stop) {
-    [obj writeData:length withTimeout:1000 tag:random()];
-    [obj writeData:data withTimeout:1000 tag:random()];
+    [obj writeData:length withTimeout:1000 tag:tag];
+    [obj writeData:data withTimeout:1000 tag:tag+1];
   }];
 }
 
@@ -144,7 +176,8 @@
   if (!_receiveSocket) {
     _receiveSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.delegateQueue socketQueue:self.socketQueue];
     NSError* error;
-    [_receiveSocket acceptOnPort:rand() error:&error];
+//    [_receiveSocket acceptOnPort:rand() error:&error];
+    [_receiveSocket acceptOnPort:8080 error:&error];
     if (error) {
       NSLog(@"Error binding socket: %@", error);
       _receiveSocket = nil;
@@ -153,10 +186,45 @@
   return _receiveSocket;
 }
 
+-(NSMutableDictionary*)outboundQueue
+{
+  if(!_outboundQueue) {
+    _outboundQueue = [[NSMutableDictionary alloc] init];
+  }
+  return _outboundQueue;
+}
 
+
+
+// Successful write.
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
-  NSLog(@"Success sending data.");
+  NSNumber* key = [NSNumber numberWithLong:tag];
+  @synchronized(self.outboundQueue) {
+    if ([self.outboundQueue objectForKey:key]) {
+      void (^block)(BOOL success) = [self.outboundQueue objectForKey:key];
+      [self.outboundQueue removeObjectForKey:key];
+      block(YES);
+    }
+  }
+}
+
+// Unsucessful write.
+- (NSTimeInterval)socket:(GCDAsyncSocket *)sock shouldTimeoutWriteWithTag:(long)tag
+                 elapsed:(NSTimeInterval)elapsed
+               bytesDone:(NSUInteger)length
+{
+  NSNumber* key = [NSNumber numberWithLong:tag];
+  @synchronized(self.outboundQueue) {
+    if ([self.outboundQueue objectForKey:key]) {
+      void (^block)(BOOL success) = [self.outboundQueue objectForKey:key];
+      [self.outboundQueue removeObjectForKey:key];
+      block(NO);
+    }
+  }
+
+  // Don't extend the timeout.
+  return -1;
 }
 
 -(void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag

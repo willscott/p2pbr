@@ -27,8 +27,6 @@
 @synthesize output = _output;
 @synthesize currentSegment = _currentSegment;
 
-BOOL pending = NO;
-
 -(void)playTo:(AVPlayer*)dest
 {
   if (self.output)
@@ -76,36 +74,41 @@ BOOL pending = NO;
 -(void)onFileReceivedFromSource:(NSNotification*)note
 {
   NSLog(@"Play Notification.");
-  if (self.currentSegment == nil)
-  {
-    self.currentSegment = [self getTemporaryFile];
-    NSData* segment = [self.socket segment];
-    self.socket.segment = nil;
-    [segment writeToURL:self.currentSegment atomically:NO];
-    NSLog(@"Segment stored at %@", self.currentSegment);
+  self.currentSegment = [self getTemporaryFile];
+  NSData* segment = [self.socket segment];
+  self.socket.segment = nil;
+  [segment writeToURL:self.currentSegment atomically:NO];
   
-    AVURLAsset* file = [AVURLAsset assetWithURL:self.currentSegment];
-    [file loadValuesAsynchronouslyForKeys:nil completionHandler:^(void) {
-      // Dispatch again to the main queue, in order to properly interact with the UI.
-      dispatch_async(dispatch_get_main_queue(), ^(void) {
-        [self startPlayback:file];
-      });
-    }];
-  } else {
-    //TODO:handle pending better.
-    //pending = true;
-    self.socket.segment = nil;
-  }
+  AVURLAsset* file = [AVURLAsset assetWithURL:self.currentSegment];
+  [file loadValuesAsynchronouslyForKeys:nil completionHandler:^(void) {
+    // Dispatch again to the main queue, in order to properly interact with the UI.
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+      [self startPlayback:file];
+    });
+  }];
 }
      
 -(void)startPlayback:(AVAsset*)asset
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.output.currentItem];
+  AVURLAsset* oldItem;
+  if([self.output.currentItem.asset isKindOfClass:[AVURLAsset class]]) {
+    oldItem = (AVURLAsset*)self.output.currentItem.asset;
+  }
   AVPlayerItem* item = [AVPlayerItem playerItemWithAsset:asset];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:item];
   [self.output replaceCurrentItemWithPlayerItem:item];
   [self.output seekToTime:CMTimeMake(0, 1)];
   [self.output play];
+
+  if (oldItem && [oldItem.URL.path hasPrefix:NSTemporaryDirectory()]) {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:oldItem.URL.path]) {
+      [fileManager removeItemAtURL:oldItem.URL error: nil];
+    }
+  } else if (oldItem) {
+    NSLog(@"'%@' doesn't have prefix '%@'", oldItem.URL.path, NSTemporaryDirectory());
+  }
 }
 
 -(void)playbackEnd:(NSNotification*)note
@@ -117,17 +120,6 @@ BOOL pending = NO;
     return;
   }
   NSLog(@"Finished segment. with info %@", note);
-
-  NSFileManager *fileManager = [NSFileManager defaultManager];
-  if ([fileManager fileExistsAtPath:[self.currentSegment path]]) {
-    [fileManager removeItemAtURL:self.currentSegment error: nil];
-  }
-  self.currentSegment = nil;
-  
-  if (pending) {
-    pending = NO;
-    [self onFileReceivedFromSource:nil];
-  }
 }
 
 @end

@@ -70,12 +70,13 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   
   NSData* recordedData = [NSData dataWithContentsOfURL:outputFileURL];
 
-  [self.socket sendData:recordedData];
-
-  NSFileManager *fileManager = [NSFileManager defaultManager];
-  if ([fileManager fileExistsAtPath:[outputFileURL path]]) {
-    [fileManager removeItemAtURL:outputFileURL error: nil];
-  }
+  [self.socket sendData:recordedData andThen:^(BOOL success) {
+    NSLog(@"Cleaned up after sending segment.");
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:[outputFileURL path]]) {
+      [fileManager removeItemAtURL:outputFileURL error: nil];
+    }
+  }];
 }
 
 @end
