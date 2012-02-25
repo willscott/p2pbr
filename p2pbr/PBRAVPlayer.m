@@ -11,12 +11,12 @@
 @interface PBRAVPlayer()
 
 @property (weak, nonatomic) AVPlayer* output;
-@property (strong, nonatomic) NSURL* currentSegment;
+@property (strong, nonatomic) NSMutableOrderedSet* playQueue;
+@property (strong, nonatomic) NSDictionary* playingItem;
 
 -(void)onFileReceivedFromSource:(NSNotification*)note;
 -(NSURL*) getTemporaryFile;
 
--(void)startPlayback:(AVAsset*)asset;
 -(void)playbackEnd:(NSNotification*)note;
 @end
 
@@ -25,19 +25,28 @@
 @synthesize socket = _socket;
 
 @synthesize output = _output;
-@synthesize currentSegment = _currentSegment;
+@synthesize playQueue = _playQueue;
+@synthesize playingItem = _playingItem;
 
 -(void)playTo:(AVPlayer*)dest
 {
   if (self.output)
   {
     [self.output pause];
-    if (self.currentSegment) {
-      NSFileManager *fileManager = [NSFileManager defaultManager];
-      if ([fileManager fileExistsAtPath:[self.currentSegment path]]) {
-        [fileManager removeItemAtURL:self.currentSegment error: nil];
-      }
-      self.currentSegment = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([self.playQueue count] > 0) {
+      [self.playQueue enumerateObjectsUsingBlock:^(NSDictionary* obj, NSUInteger idx, BOOL *stop) {
+        if ([fileManager fileExistsAtPath:[[obj objectForKey:@"url"] path]]) {
+          [fileManager removeItemAtURL:[obj objectForKey:@"url"] error: nil];
+        }
+      }];
+      [self.playQueue removeAllObjects];
+    }
+    if (self.playingItem) {
+      if ([fileManager fileExistsAtPath:[[self.playingItem objectForKey:@"url"] path]]) {
+        [fileManager removeItemAtURL:[self.playingItem objectForKey:@"url"] error: nil];
+      }  
+      self.playingItem = nil;
     }
   }
   self.output = dest;
@@ -74,52 +83,67 @@
 -(void)onFileReceivedFromSource:(NSNotification*)note
 {
   NSLog(@"Play Notification.");
-  self.currentSegment = [self getTemporaryFile];
+  NSURL* location = [self getTemporaryFile];
   NSData* segment = [self.socket segment];
   self.socket.segment = nil;
-  [segment writeToURL:self.currentSegment atomically:NO];
+  [segment writeToURL:location atomically:NO];
   
-  AVURLAsset* file = [AVURLAsset assetWithURL:self.currentSegment];
+  AVURLAsset* file = [AVURLAsset assetWithURL:location];
   [file loadValuesAsynchronouslyForKeys:nil completionHandler:^(void) {
-    // Dispatch again to the main queue, in order to properly interact with the UI.
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-      [self startPlayback:file];
-    });
+    NSLog(@"Segment ready.");
+    NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:location, @"url", file, @"asset", nil];
+    @synchronized(self.playQueue) {
+      [self.playQueue addObject:dict];
+    }
   }];
 }
-     
--(void)startPlayback:(AVAsset*)asset
-{
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.output.currentItem];
-  AVURLAsset* oldItem;
-  if([self.output.currentItem.asset isKindOfClass:[AVURLAsset class]]) {
-    oldItem = (AVURLAsset*)self.output.currentItem.asset;
-  }
-  AVPlayerItem* item = [AVPlayerItem playerItemWithAsset:asset];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:item];
-  [self.output replaceCurrentItemWithPlayerItem:item];
-  [self.output seekToTime:CMTimeMake(0, 1)];
-  [self.output play];
 
-  if (oldItem && [oldItem.URL.path hasPrefix:NSTemporaryDirectory()]) {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:oldItem.URL.path]) {
-      [fileManager removeItemAtURL:oldItem.URL error: nil];
-    }
-  } else if (oldItem) {
-    NSLog(@"'%@' doesn't have prefix '%@'", oldItem.URL.path, NSTemporaryDirectory());
-  }
-}
 
 -(void)playbackEnd:(NSNotification*)note
 {
-  if (!self.currentSegment) {
+  NSLog(@"Playback End.");
+  if ([self.playQueue count] == 0) {
     // Loading screen.
     [self.output seekToTime:CMTimeMake(0, 1)];
     [self.output play];
     return;
+  } else {
+    NSDictionary* nextItem;
+    @synchronized(self.playQueue) {
+      nextItem = [self.playQueue objectAtIndex:0];
+      [self.playQueue removeObject:nextItem];
+    }
+    AVPlayerItem* playerItem = [AVPlayerItem playerItemWithAsset:[nextItem objectForKey:@"asset"]];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(playbackEnd:) 
+                                                 name:AVPlayerItemDidPlayToEndTimeNotification 
+                                               object:playerItem];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self 
+                                                    name:AVPlayerItemDidPlayToEndTimeNotification 
+                                                  object:self.output.currentItem];
+
+    [self.output replaceCurrentItemWithPlayerItem:playerItem];
+    [self.output seekToTime:CMTimeMake(0, 1)];
+    [self.output play];
+
+    if (self.playingItem) {
+      NSFileManager *fileManager = [NSFileManager defaultManager];
+      if ([fileManager fileExistsAtPath:[[self.playingItem objectForKey:@"url"] path]]) {
+        [fileManager removeItemAtURL:[self.playingItem objectForKey:@"url"] error: nil];
+      }
+    } 
+
+    self.playingItem = nextItem;
   }
-  NSLog(@"Finished segment. with info %@", note);
+}
+
+-(NSMutableOrderedSet*) playQueue
+{
+  if (!_playQueue) {
+    _playQueue = [[NSMutableOrderedSet alloc] initWithCapacity:5];
+  }
+  return _playQueue;
 }
 
 @end
