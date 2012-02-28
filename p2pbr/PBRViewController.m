@@ -133,6 +133,11 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [self.recordView setFrame:[self.preview bounds]];
   
   [self.recordView setVideoGravity:AVLayerVideoGravityResizeAspect];
+  if([[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeRight) {
+    [self.recordView setOrientation:AVCaptureVideoOrientationLandscapeLeft];    
+  } else {
+    [self.recordView setOrientation:AVCaptureVideoOrientationLandscapeRight];
+  }
   
   [viewLayer insertSublayer:self.recordView below:[[viewLayer sublayers] objectAtIndex:0]];
   
