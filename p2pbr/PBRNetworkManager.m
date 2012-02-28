@@ -176,8 +176,11 @@
   if (!_receiveSocket) {
     _receiveSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.delegateQueue socketQueue:self.socketQueue];
     NSError* error;
-//    [_receiveSocket acceptOnPort:rand() error:&error];
+#ifdef DEBUG_STATIC
     [_receiveSocket acceptOnPort:8080 error:&error];
+#else
+    [_receiveSocket acceptOnPort:rand() error:&error];
+#endif
     if (error) {
       NSLog(@"Error binding socket: %@", error);
       _receiveSocket = nil;
@@ -242,7 +245,7 @@
 
   BOOL done = NO;
   int len = [data length];
-  //NSLog(@"Read State: %d/%d",self.segmentLength,[self.segment length]);
+  NSLog(@"Read State: %d/%d",self.segmentLength,[self.segment length]);
   if (self.segmentLength + len >= [self.segment length]) {
     done = YES;
     len = [self.segment length] - self.segmentLength;
@@ -257,7 +260,7 @@
     }
   }
   
-  int next = 4096;
+  int next = 1500;
   if (!done && [self.segment length] - self.segmentLength < next)
   {
     next = [self.segment length] - self.segmentLength;
@@ -296,7 +299,7 @@
       NSLog(@"Unexpected source connection. Should probably stop this.");
     } else {
       NSLog(@"Got connection from %@", host);
-      [sock readDataToLength:4096 withTimeout:1000 tag:random()];
+      [sock readDataToLength:1500 withTimeout:1000 tag:random()];
     }
   }
 }

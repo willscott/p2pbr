@@ -32,6 +32,7 @@
 {
   if (active && !_active) { //Start.
     [self.source startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
+    [NSTimer timerWithTimeInterval:1.0 target:self.source selector:@selector(stopRecording) userInfo:nil repeats:NO];
   }
   _active = active;
 }
@@ -66,6 +67,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
   }
   if (self.active) {
     [self.source startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
+    [NSTimer timerWithTimeInterval:1.0 target:self.source selector:@selector(stopRecording) userInfo:nil repeats:NO];
   }
   
   NSData* recordedData = [NSData dataWithContentsOfURL:outputFileURL];

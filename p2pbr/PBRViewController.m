@@ -120,8 +120,8 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   
   // Connect to packetizer.
   AVCaptureMovieFileOutput* output = [[AVCaptureMovieFileOutput alloc] init];
-  [output setMovieFragmentInterval:CMTimeMakeWithSeconds(1, 10)]; //.1 sec
-  [output setMaxRecordedDuration:CMTimeMakeWithSeconds(1, 2)]; //.5 sec
+  //[output setMovieFragmentInterval:CMTimeMakeWithSeconds(1, 10)]; //.1 sec
+  [output setMaxRecordedDuration:CMTimeMakeWithSeconds(2, 1 )]; //.5 sec
   AVMutableMetadataItem* title = [[AVMutableMetadataItem alloc] init];
   [title setKeySpace:AVMetadataKeySpaceCommon];
   [title setKey:AVMetadataCommonKeyTitle];
