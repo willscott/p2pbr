@@ -78,98 +78,82 @@
 #else
     NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     [NSURLConnection sendAsynchronousRequest:req queue:queue completionHandler:^(NSURLResponse* resp, NSData* data, NSError* err) {
-        if (err) {
-            NSLog(@"Failed to connect to server: %@", err);
-            return;
+      if (err) {
+        NSLog(@"Failed to connect to server: %@", err);
+        return;
+      }
+      
+      // Keep some info on number of sockets created/retained/closed/etc.
+      int sourcesGiven = 0;
+      int destsGiven = 0;
+      int destsCreated = 0;
+      int destsRetained = 0;
+      int destsClosed = 0;
+      int oldDestCount = [self.destinations count];
+      
+      // newDestinations is a temporary variable in which we store sockets we retain or create
+      // At the end, we assign self.destinations = newDestinations
+      NSMutableArray* newDestinations = [[NSMutableArray alloc] init];
+      
+      // Parse body of webserver reponse as JSON, then check that the data is in the correct form
+      id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+      if (![self serverDataFormatIsCorrect:parsed]) {
+        return;
+      }
+      NSArray* destsGivenByServer = [parsed valueForKey:@"put"];  // array of [IP, port] pairs (string, number)
+      
+      destsGiven = [destsGivenByServer count];
+      
+      // Retain all sockets the server still wants us to talk to by moving them from self.destinations to newDestinations
+      for (NSArray* dest in destsGivenByServer) {
+        NSString* host = [dest objectAtIndex:0];
+        NSNumber* port = [dest objectAtIndex:1];
+        GCDAsyncSocket* existingSocket = [self haveSocketOpenToHost:host onPort:port];
+        // Pre-existing socket? Move it to newDestinations
+        if (existingSocket != nil) {
+          [newDestinations addObject:existingSocket];
+          [self.destinations removeObject:existingSocket];
+          destsRetained++;
         }
-        
-        // Keep some info on number of sockets created/retained/closed/etc.
-        int sourcesGiven = 0;
-        int destsGiven = 0;
-        int destsCreated = 0;
-        int destsRetained = 0;
-        int destsClosed = 0;
-        int oldDestCount = [self.destinations count];
-        
-        // newDestinations is a temporary variable in which we store sockets we retain or create
-        // At the end, we assign self.destinations = newDestinations
-        NSMutableArray* newDestinations = [[NSMutableArray alloc] init];
-        
-        // Parse body of webserver reponse as JSON, then check that the data is in the correct form
-        id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-        if (![self serverDataFormatIsCorrect:parsed]) {
-            return;
+        // Create a socket to each destination we don't already have one to
+        else {
+          GCDAsyncSocket* sock = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
+          [sock connectToHost:host onPort:[port intValue] error:nil];
+          [newDestinations addObject:sock];    
+          destsCreated++;
         }
-        NSArray* destsGivenByServer = [parsed valueForKey:@"put"];  // array of [IP, port] pairs (string, number)
-        
-        destsGiven = [destsGivenByServer count];
-        
-        // Retain all sockets the server still wants us to talk to by moving them from self.destinations to newDestinations
-        for (NSArray* dest in destsGivenByServer) {
-            NSString* host = [dest objectAtIndex:0];
-            NSNumber* port = [dest objectAtIndex:1];
-            GCDAsyncSocket* existingSocket = [self haveSocketOpenToHost:host onPort:port];
-            // Pre-existing socket? Move it to newDestinations
-            if (existingSocket != nil) {
-                [newDestinations addObject:existingSocket];
-                [self.destinations removeObject:existingSocket];
-                destsRetained++;
-            }
-            // Create a socket to each destination we don't already have one to
-            else {
-                GCDAsyncSocket* sock = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
-                [sock connectToHost:host onPort:[port intValue] error:nil];
-                [newDestinations addObject:sock];    
-                destsCreated++;
-            }
+      }
+      
+      // What's left in self.destinations is those sockets we have open that the server didn't tell us to keep open - close them!
+      NSLog(@"have %d sockets left in self.destinations", [self.destinations count]);
+      for (GCDAsyncSocket* socketToClose in self.destinations) {
+        [socketToClose setDelegate:nil delegateQueue:NULL];
+        [socketToClose disconnect];
+        destsClosed++;
+      }
+      [self.destinations removeAllObjects];
+      self.destinations = newDestinations;
+      if (self.destinations.count == 0) {
+        @synchronized(self.outboundQueue) {
+          [self.outboundQueue removeAllObjects];
         }
-        
-        // What's left in self.destinations is those sockets we have open that the server didn't tell us to keep open - close them!
-        NSLog(@"have %d sockets left in self.destinations", [self.destinations count]);
-        for (GCDAsyncSocket* socketToClose in self.destinations) {
-            [socketToClose setDelegate:nil delegateQueue:NULL];
-            [socketToClose disconnect];
-            destsClosed++;
-        }
-        [self.destinations removeAllObjects];
-        self.destinations = newDestinations;
-    
-        //not sure whether we still do this
-//        @synchronized(self.outboundQueue) {
-//            [self.outboundQueue removeAllObjects];
-//        } 
+      }
 
-        /**
-         * We do this above now
-        [stringIPsGivenByServer enumerateObjectsUsingBlock:^(NSArray* dest, NSUInteger idx, BOOL *stop) {
-            if (![dest isKindOfClass:[NSArray class]]) {
-                return;
-            }
-            NSString* host = [dest objectAtIndex:0];
-            NSNumber* port = [dest objectAtIndex:1];
-            
-            GCDAsyncSocket* sock = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
-            [sock connectToHost:host onPort:[port intValue] error:nil];
-            [self.destinations addObject:sock];
-        }];
-        */
-        
-        // For now we still completely reset the srcs list, since it's just a list of string IPs
-        NSArray* srcs = [parsed valueForKey:@"get"];
-        sourcesGiven = [srcs count];
-        [self.sourceHosts removeAllObjects];
-        [self.sourceSockets enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            dispatch_release(self.socketQueue);
-        }];
-        [self.sourceSockets removeAllObjects];
-        [srcs enumerateObjectsUsingBlock:^(NSString* src, NSUInteger idx, BOOL *stop) {
-            [self.sourceHosts addObject:src];
-        }];
-        NSLog(@"Destinations (%d from server): of %d old sockets, retained %d and closed %d. Created %d new.  Loaded %d sources from server.",
-              destsGiven, oldDestCount, destsRetained, destsClosed, destsCreated, sourcesGiven);
+      NSArray* srcs = [parsed valueForKey:@"get"];
+      sourcesGiven = [srcs count];
+      [self.sourceHosts removeAllObjects];
+      for (id obj in self.sourceSockets) {
+        dispatch_release(self.socketQueue);
+      }
+      [self.sourceSockets removeAllObjects];
+      for (NSString* src in srcs) {
+        [self.sourceHosts addObject:src];
+      }
+      NSLog(@"Destinations (%d from server): of %d old sockets, retained %d and closed %d. Created %d new.  Loaded %d sources from server.",
+            destsGiven, oldDestCount, destsRetained, destsClosed, destsCreated, sourcesGiven);
     }];
 #endif
-
+  
   // Clear out partial transfers.
   self.segment = nil;
 }

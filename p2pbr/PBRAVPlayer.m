@@ -35,11 +35,11 @@
     [self.output pause];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([self.playQueue count] > 0) {
-      [self.playQueue enumerateObjectsUsingBlock:^(NSDictionary* obj, NSUInteger idx, BOOL *stop) {
-        if ([fileManager fileExistsAtPath:[[obj objectForKey:@"url"] path]]) {
-          [fileManager removeItemAtURL:[obj objectForKey:@"url"] error: nil];
+      for (NSDictionary* dict in self.playQueue) {
+        if ([fileManager fileExistsAtPath:[[dict objectForKey:@"url"] path]]) {
+          [fileManager removeItemAtURL:[dict objectForKey:@"url"] error: nil];
         }
-      }];
+      }
       [self.playQueue removeAllObjects];
     }
     if (self.playingItem) {
