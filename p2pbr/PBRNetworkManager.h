@@ -22,4 +22,5 @@
 -(id) initWithServer:(NSURL*)server;
 -(void) sendData:(NSData*)data andThen:(void (^)(BOOL success))block;
 
+
 @end
