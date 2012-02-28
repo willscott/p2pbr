@@ -12,7 +12,7 @@
 #import "PBRNetworkManager.h"
 
 //const NSString* serverAddress = @"http://www.quimian.com/p2pbr.txt";
-const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/";
+const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/hello";
 
 @interface PBRViewController()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer* recordView;
