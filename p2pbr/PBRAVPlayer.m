@@ -89,13 +89,13 @@
   [segment writeToURL:location atomically:NO];
   
   AVURLAsset* file = [AVURLAsset assetWithURL:location];
-  [file loadValuesAsynchronouslyForKeys:nil completionHandler:^(void) {
+  [file loadValuesAsynchronouslyForKeys:nil completionHandler:[^{
     NSLog(@"Segment ready.");
     NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:location, @"url", file, @"asset", nil];
     @synchronized(self.playQueue) {
       [self.playQueue addObject:dict];
     }
-  }];
+  } copy]];
 }
 
 
