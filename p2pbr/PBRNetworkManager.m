@@ -8,8 +8,8 @@
 
 #import "PBRNetworkManager.h"
 #define DEBUG_STATIC 1
-#define DEBUG_STATIC_SOURCE "128.208.7.219"
-//#define DEBUG_STATIC_SOURCE "172.28.7.55"
+//#define DEBUG_STATIC_SOURCE "128.208.7.219"
+#define DEBUG_STATIC_SOURCE "172.28.7.55"
 #define DEBUG_STATIC_DEST "128.208.7.124"
 
 @interface PBRNetworkManager()
@@ -165,9 +165,7 @@
 {
   long tag = random();
   @synchronized(self.outboundQueue) {
-    void (^blockCopy) (BOOL success) = (__bridge void(^)(BOOL)) Block_copy((__bridge void*) block);
-    [self.outboundQueue setObject:blockCopy forKey:[NSNumber numberWithLong:tag+1]];
-    Block_release((__bridge void*) blockCopy);
+    [self.outboundQueue setObject:[block copy] forKey:[NSNumber numberWithLong:tag+1]];
   }
   NSLog(@"Requesting write for tag: %ld", tag);
   int len = [data length];
