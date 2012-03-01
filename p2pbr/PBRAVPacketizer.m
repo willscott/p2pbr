@@ -10,7 +10,9 @@
 
 @interface PBRAVPacketizer()
 
-@property (strong,nonatomic) AVCaptureMovieFileOutput* source;
+@property (strong,nonatomic) AVCaptureMovieFileOutput* source1;
+@property (strong,nonatomic) AVCaptureMovieFileOutput* source2;
+@property (strong,nonatomic) NSTimer* timer;
 
 -(NSURL*) getTemporaryFile;
 
@@ -21,20 +23,43 @@
 @synthesize active = _active;
 @synthesize socket = _socket;
 
-@synthesize source = _source;
+@synthesize source1 = _source1;
+@synthesize source2 = _source2;
+@synthesize timer = _timer;
 
--(void) recordFrom:(AVCaptureMovieFileOutput*)output
+-(void) recordFrom:(AVCaptureMovieFileOutput*)output and:(AVCaptureMovieFileOutput *)alternative
 {
-  self.source = output;
+  self.source1 = output;
+  self.source2 = alternative;
 }
 
 -(void) setActive:(BOOL)active
 {
-  if (active && !_active) { //Start.
-    [self.source startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
-    [NSTimer timerWithTimeInterval:1.0 target:self.source selector:@selector(stopRecording) userInfo:nil repeats:NO];
+  if (active && !_active) {
+    if (![self.source1 isRecording]) {
+      [self.source1 startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];      
+    } else {
+      [self.source2 startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];            
+    }
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(swap) userInfo:nil repeats:YES];
   }
   _active = active;
+}
+
+-(void) swap
+{
+  if (!self.active) {
+    [self.timer invalidate];
+    self.timer = nil;
+    return;
+  }
+  if (self.source1.isRecording) {
+    [self.source2 startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
+    [self.source1 stopRecording];
+  } else {
+    [self.source1 startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
+    [self.source2 stopRecording];
+  }
 }
 
 -(NSURL*) getTemporaryFile
@@ -59,13 +84,12 @@
     didStartRecordingToOutputFileAtURL:(NSURL *)fileURL
     fromConnections:(NSArray *)connections 
 {
-  NSArray* mdarray = self.source.metadata;
+  NSArray* mdarray = ((AVCaptureMovieFileOutput*)captureOutput).metadata;
   for (AVMetadataItem* md in mdarray) {
     NSLog(@"time: %f, duration: %f", CMTimeGetSeconds(md.time), CMTimeGetSeconds(md.duration));
   }
-  
-    
 }
+
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput
 didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL 
       fromConnections:(NSArray *)connections 
@@ -76,13 +100,9 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     NSLog(@"Error with output: %@", error);
     return;
   }
-  NSArray* mdarray = self.source.metadata;
+  NSArray* mdarray = ((AVCaptureMovieFileOutput*)captureOutput).metadata;
   for (AVMetadataItem* md in mdarray) {
     NSLog(@"time: %f, duration: %f", CMTimeGetSeconds(md.time), CMTimeGetSeconds(md.duration));
-  }
-  if (self.active) {
-    [self.source startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
-    [NSTimer timerWithTimeInterval:1.0 target:self.source selector:@selector(stopRecording) userInfo:nil repeats:NO];
   }
   
   NSData* recordedData = [NSData dataWithContentsOfURL:outputFileURL];

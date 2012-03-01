@@ -16,6 +16,6 @@
 @property (nonatomic) BOOL active;
 @property (strong, nonatomic) PBRNetworkManager* socket;
 
--(void) recordFrom:(AVCaptureMovieFileOutput*)source;
+-(void) recordFrom:(AVCaptureMovieFileOutput*)output and:(AVCaptureMovieFileOutput*)alternative;
 
 @end
