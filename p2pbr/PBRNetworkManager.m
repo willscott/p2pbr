@@ -7,7 +7,7 @@
 //
 
 #import "PBRNetworkManager.h"
-#define DEBUG_STATIC 0
+#define DEBUG_STATIC 1
 #define DEBUG_STATIC_SOURCE "128.208.7.219"
 #define DEBUG_STATIC_DEST "128.208.7.124"
 
@@ -17,7 +17,7 @@
 @property (nonatomic) int segmentLength;
 @property (nonatomic) dispatch_queue_t delegateQueue;
 @property (nonatomic) dispatch_queue_t socketQueue;
-@property (nonatomic, strong) NSMutableDictionary* outboundQueue;
+@property (strong,nonatomic) NSMutableDictionary* outboundQueue;
 
 -(void) pollServer;
 -(GCDAsyncSocket*) haveSocketOpenToHost:(NSString*)host onPort:(NSNumber*)port;
@@ -47,7 +47,9 @@
     self.server = server;
       [self pollServer];
   }
+#if !DEBUG_STATIC
     NSTimer* pollTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(pollServer) userInfo:nil repeats:YES];
+#endif
   return self;
 }
 

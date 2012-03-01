@@ -56,6 +56,17 @@
 }
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput
+    didStartRecordingToOutputFileAtURL:(NSURL *)fileURL
+    fromConnections:(NSArray *)connections 
+{
+  NSArray* mdarray = self.source.metadata;
+  for (AVMetadataItem* md in mdarray) {
+    NSLog(@"time: %f, duration: %f", CMTimeGetSeconds(md.time), CMTimeGetSeconds(md.duration));
+  }
+  
+    
+}
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput
 didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL 
       fromConnections:(NSArray *)connections 
                 error:(NSError *)error
@@ -64,6 +75,10 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     // Stop on errors except for 'maximum length reached.'
     NSLog(@"Error with output: %@", error);
     return;
+  }
+  NSArray* mdarray = self.source.metadata;
+  for (AVMetadataItem* md in mdarray) {
+    NSLog(@"time: %f, duration: %f", CMTimeGetSeconds(md.time), CMTimeGetSeconds(md.duration));
   }
   if (self.active) {
     [self.source startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
