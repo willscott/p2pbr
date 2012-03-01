@@ -9,6 +9,7 @@
 #import "PBRNetworkManager.h"
 #define DEBUG_STATIC 1
 #define DEBUG_STATIC_SOURCE "128.208.7.219"
+//#define DEBUG_STATIC_SOURCE "172.28.7.55"
 #define DEBUG_STATIC_DEST "128.208.7.124"
 
 @interface PBRNetworkManager()
@@ -48,7 +49,7 @@
       [self pollServer];
   }
 #if !DEBUG_STATIC
-    NSTimer* pollTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(pollServer) userInfo:nil repeats:YES];
+  NSTimer* pollTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(pollServer) userInfo:nil repeats:YES];
 #endif
   return self;
 }
@@ -164,7 +165,9 @@
 {
   long tag = random();
   @synchronized(self.outboundQueue) {
-    [self.outboundQueue setObject:block forKey:[NSNumber numberWithLong:tag+1]];
+    void (^blockCopy) (BOOL success) = (__bridge void(^)(BOOL)) Block_copy((__bridge void*) block);
+    [self.outboundQueue setObject:blockCopy forKey:[NSNumber numberWithLong:tag+1]];
+    Block_release((__bridge void*) blockCopy);
   }
   NSLog(@"Requesting write for tag: %ld", tag);
   int len = [data length];
@@ -244,7 +247,8 @@
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
   NSNumber* key = [NSNumber numberWithLong:tag];
-  @synchronized(self.outboundQueue) {
+  NSMutableDictionary* oQueue = self.outboundQueue;
+  @synchronized(oQueue) {
     if ([self.outboundQueue objectForKey:key]) {
       void (^block)(BOOL success) = [self.outboundQueue objectForKey:key];
       [self.outboundQueue removeObjectForKey:key];
@@ -337,7 +341,7 @@
 {
   if ([self.sourceSockets containsObject:sock]) {
     if (![self.sourceHosts containsObject:host]) {
-      NSLog(@"Unexpected source connection. Should probably stop this.");
+      NSLog(@"Unexpected source connection from %@. Should probably stop this.", host);
     } else {
       NSLog(@"Got connection from %@", host);
       [sock readDataToLength:1500 withTimeout:1000 tag:random()];
