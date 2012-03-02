@@ -11,11 +11,11 @@
 
 #include "PBRNetworkManager.h"
 
-@interface PBRAVPacketizer : NSObject <AVCaptureFileOutputRecordingDelegate>
+@interface PBRAVPacketizer : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate,AVCaptureAudioDataOutputSampleBufferDelegate>
 
 @property (nonatomic) BOOL active;
 @property (strong, nonatomic) PBRNetworkManager* socket;
 
--(void) recordFrom:(AVCaptureMovieFileOutput*)output;
+-(void) recordAudio:(AVCaptureAudioDataOutput*)audio andVideo:(AVCaptureVideoDataOutput*)video;
 
 @end

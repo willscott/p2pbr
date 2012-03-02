@@ -10,9 +10,6 @@
 
 @interface PBRAVPacketizer()
 
-@property (strong,nonatomic) AVCaptureMovieFileOutput* source;
-@property (strong,nonatomic) NSTimer* timer;
-
 -(NSURL*) getTemporaryFile;
 
 @end
@@ -22,36 +19,21 @@
 @synthesize active = _active;
 @synthesize socket = _socket;
 
-@synthesize source = _source;
-@synthesize timer = _timer;
-
--(void) recordFrom:(AVCaptureMovieFileOutput*)output
+-(void) recordAudio:(AVCaptureAudioDataOutput*)audio andVideo:(AVCaptureVideoDataOutput*)video
 {
-  self.source = output;
+  dispatch_queue_t queue = dispatch_queue_create("MediaProcessQueue", NULL);
+
+  [video setSampleBufferDelegate:self queue:queue];
+  [audio setSampleBufferDelegate:self queue:queue];
+  
+  dispatch_release(queue);
 }
 
 -(void) setActive:(BOOL)active
 {
-  if (active && !_active) {
-    if (![self.source isRecording]) {
-      [self.source startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];      
-    }
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(swap) userInfo:nil repeats:YES];
-  }
   _active = active;
 }
 
--(void) swap
-{
-  if (!self.active) {
-    [self.timer invalidate];
-    self.timer = nil;
-    return;
-  }
-  if (self.source.isRecording) {
-    [self.source stopRecording];
-  }
-}
 
 -(NSURL*) getTemporaryFile
 {
@@ -71,16 +53,14 @@
   return result;
 }
 
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput
-    didStartRecordingToOutputFileAtURL:(NSURL *)fileURL
-    fromConnections:(NSArray *)connections 
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-  NSArray* mdarray = ((AVCaptureMovieFileOutput*)captureOutput).metadata;
-  for (AVMetadataItem* md in mdarray) {
-    NSLog(@"time: %f, duration: %f", CMTimeGetSeconds(md.time), CMTimeGetSeconds(md.duration));
+  if (self.active) {
+    NSLog(@".");
   }
 }
 
+/*
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput
 didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL 
       fromConnections:(NSArray *)connections 
@@ -109,5 +89,6 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     }
   }];
 }
+*/
 
 @end
