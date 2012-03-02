@@ -10,8 +10,7 @@
 
 @interface PBRAVPacketizer()
 
-@property (strong,nonatomic) AVCaptureMovieFileOutput* source1;
-@property (strong,nonatomic) AVCaptureMovieFileOutput* source2;
+@property (strong,nonatomic) AVCaptureMovieFileOutput* source;
 @property (strong,nonatomic) NSTimer* timer;
 
 -(NSURL*) getTemporaryFile;
@@ -23,23 +22,19 @@
 @synthesize active = _active;
 @synthesize socket = _socket;
 
-@synthesize source1 = _source1;
-@synthesize source2 = _source2;
+@synthesize source = _source;
 @synthesize timer = _timer;
 
--(void) recordFrom:(AVCaptureMovieFileOutput*)output and:(AVCaptureMovieFileOutput *)alternative
+-(void) recordFrom:(AVCaptureMovieFileOutput*)output
 {
-  self.source1 = output;
-  self.source2 = alternative;
+  self.source = output;
 }
 
 -(void) setActive:(BOOL)active
 {
   if (active && !_active) {
-    if (![self.source1 isRecording]) {
-      [self.source1 startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];      
-    } else {
-      [self.source2 startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];            
+    if (![self.source isRecording]) {
+      [self.source startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];      
     }
     self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(swap) userInfo:nil repeats:YES];
   }
@@ -53,12 +48,8 @@
     self.timer = nil;
     return;
   }
-  if (self.source1.isRecording) {
-    [self.source2 startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
-    [self.source1 stopRecording];
-  } else {
-    [self.source1 startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
-    [self.source2 stopRecording];
+  if (self.source.isRecording) {
+    [self.source stopRecording];
   }
 }
 
@@ -100,6 +91,9 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     NSLog(@"Error with output: %@", error);
     return;
   }
+
+  [self.source startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
+
   NSArray* mdarray = ((AVCaptureMovieFileOutput*)captureOutput).metadata;
   for (AVMetadataItem* md in mdarray) {
     NSLog(@"time: %f, duration: %f", CMTimeGetSeconds(md.time), CMTimeGetSeconds(md.duration));

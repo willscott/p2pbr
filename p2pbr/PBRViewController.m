@@ -119,19 +119,16 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [viewLayer setMasksToBounds:YES];
   
   // Connect to packetizer.
-  AVCaptureMovieFileOutput* output1 = [[AVCaptureMovieFileOutput alloc] init];
-  AVCaptureMovieFileOutput* output2 = [[AVCaptureMovieFileOutput alloc] init];
+  AVCaptureMovieFileOutput* output = [[AVCaptureMovieFileOutput alloc] init];
   //[output setMovieFragmentInterval:CMTimeMakeWithSeconds(1, 10)]; //.1 sec
   //[output setMaxRecordedDuration:CMTimeMakeWithSeconds(2, 1 )]; //.5 sec
   AVMutableMetadataItem* title = [[AVMutableMetadataItem alloc] init];
   [title setKeySpace:AVMetadataKeySpaceCommon];
   [title setKey:AVMetadataCommonKeyTitle];
   [title setValue:@"p2pbr"];
-  [output1 setMetadata:[NSArray arrayWithObject:title]];
-  [output2 setMetadata:[NSArray arrayWithObject:title]];
-  [newCaptureSession addOutput:output1];
-  [newCaptureSession addOutput:output2];
-  [self.packetizer recordFrom:output1 and:output2];
+  [output setMetadata:[NSArray arrayWithObject:title]];
+  [newCaptureSession addOutput:output];
+  [self.packetizer recordFrom:output];
   
   [self.recordView setFrame:[self.preview bounds]];
   
@@ -154,7 +151,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [self.recordView removeFromSuperlayer];
   [[self.recordView session] stopRunning];
   self.recordView = nil;
-  [self.packetizer recordFrom:nil and:nil];
+  [self.packetizer recordFrom:nil];
   
   NSURL* loadingUrl = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"loading" ofType:@"m4v"]];
   AVPlayer* player = [[AVPlayer alloc] initWithURL:loadingUrl];

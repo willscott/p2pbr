@@ -8,9 +8,9 @@
 
 #import "PBRNetworkManager.h"
 #define DEBUG_STATIC 1
-//#define DEBUG_STATIC_SOURCE "128.208.7.219"
-#define DEBUG_STATIC_SOURCE "172.28.7.55"
-#define DEBUG_STATIC_DEST "128.208.7.124"
+#define DEBUG_STATIC_SOURCE "128.208.7.219"
+//#define DEBUG_STATIC_SOURCE "172.28.7.55"
+#define DEBUG_STATIC_DEST "128.208.7.178"
 
 @interface PBRNetworkManager()
 
