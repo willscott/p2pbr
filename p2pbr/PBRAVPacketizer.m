@@ -51,6 +51,9 @@
     return;
   }
 
+  // AssetWriter flow is coherently described at
+  // http://stackoverflow.com/questions/4149963/this-code-to-write-videoaudio-through-avassetwriter-and-avassetwriterinputs-is
+
   NSDictionary* videoOutputSettings = [NSDictionary dictionaryWithObjectsAndKeys:
                                         AVVideoCodecH264, AVVideoCodecKey,
                                         [NSNumber numberWithInt:640], AVVideoWidthKey,
@@ -155,7 +158,6 @@
     } else if([captureOutput isKindOfClass:[AVCaptureAudioDataOutput class]]) {
       [self handleAudioSample:sampleBuffer];      
     }
-    NSLog(@".");
   }
 }
 
@@ -186,27 +188,5 @@
   }];
 
 }
-
-/*
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput
-didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL 
-      fromConnections:(NSArray *)connections 
-                error:(NSError *)error
-{
-  if (error && [error code] != -11810) {
-    // Stop on errors except for 'maximum length reached.'
-    NSLog(@"Error with output: %@", error);
-    return;
-  }
-
-  [self.source startRecordingToOutputFileURL:[self getTemporaryFile] recordingDelegate:self];
-
-  NSArray* mdarray = ((AVCaptureMovieFileOutput*)captureOutput).metadata;
-  for (AVMetadataItem* md in mdarray) {
-    NSLog(@"time: %f, duration: %f", CMTimeGetSeconds(md.time), CMTimeGetSeconds(md.duration));
-  }
-  
-}
-*/
 
 @end
