@@ -29,6 +29,7 @@
 		934465E114D8EA3F007C028A /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E014D8EA3F007C028A /* CoreMedia.framework */; };
 		934465E514D8FA7A007C028A /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E414D8FA7A007C028A /* CFNetwork.framework */; };
 		934465E614D8FA99007C028A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E214D8F9B3007C028A /* Security.framework */; };
+		935E0A55150167EE00BC19E9 /* AVAssetWriter+compactMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 935E0A54150167EE00BC19E9 /* AVAssetWriter+compactMetadata.m */; };
 		93C5E7DD14EAD9B400D3A953 /* PBRAVPacketizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E7DC14EAD9B400D3A953 /* PBRAVPacketizer.m */; };
 		93C5E7E014EAEA0900D3A953 /* PBRNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E7DF14EAEA0900D3A953 /* PBRNetworkManager.m */; };
 		93C5E7E214EB1CEB00D3A953 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C5E7E114EB1CEB00D3A953 /* MediaPlayer.framework */; };
@@ -80,6 +81,8 @@
 		934465E014D8EA3F007C028A /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		934465E214D8F9B3007C028A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		934465E414D8FA7A007C028A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		935E0A53150167EE00BC19E9 /* AVAssetWriter+compactMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVAssetWriter+compactMetadata.h"; sourceTree = "<group>"; };
+		935E0A54150167EE00BC19E9 /* AVAssetWriter+compactMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVAssetWriter+compactMetadata.m"; sourceTree = "<group>"; };
 		93C5E7DB14EAD9B400D3A953 /* PBRAVPacketizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRAVPacketizer.h; sourceTree = "<group>"; };
 		93C5E7DC14EAD9B400D3A953 /* PBRAVPacketizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRAVPacketizer.m; sourceTree = "<group>"; };
 		93C5E7DE14EAEA0900D3A953 /* PBRNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRNetworkManager.h; sourceTree = "<group>"; };
@@ -178,6 +181,8 @@
 				9344659C14D89EBF007C028A /* Supporting Files */,
 				93C5E7DE14EAEA0900D3A953 /* PBRNetworkManager.h */,
 				93C5E7DF14EAEA0900D3A953 /* PBRNetworkManager.m */,
+				935E0A53150167EE00BC19E9 /* AVAssetWriter+compactMetadata.h */,
+				935E0A54150167EE00BC19E9 /* AVAssetWriter+compactMetadata.m */,
 			);
 			path = p2pbr;
 			sourceTree = "<group>";
@@ -354,6 +359,7 @@
 				93C5E7E514EB41F000D3A953 /* PBRAVPlayer.m in Sources */,
 				931B019014EDBD6B00326403 /* GCDAsyncSocket.m in Sources */,
 				931B019114EDBD6B00326403 /* GCDAsyncUdpSocket.m in Sources */,
+				935E0A55150167EE00BC19E9 /* AVAssetWriter+compactMetadata.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
