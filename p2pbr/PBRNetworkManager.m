@@ -9,6 +9,9 @@
 #import "PBRNetworkManager.h"
 #import "PortMapper.h"
 
+#define HEADER_LENGTH 4
+#define UPDATE_LENGTH 2000
+
 #define DEBUG_STATIC 1
 #define DEBUG_STATIC_SOURCE "128.208.7.219"
 //#define DEBUG_STATIC_SOURCE "172.28.7.55"
@@ -17,7 +20,7 @@
 @interface PBRNetworkManager()
 
 @property (strong,nonatomic) NSMutableArray* sourceSockets;
-@property (nonatomic) int segmentLength;
+@property (nonatomic) unsigned int segmentLength;
 @property (nonatomic) dispatch_queue_t delegateQueue;
 @property (nonatomic) dispatch_queue_t socketQueue;
 @property (strong,nonatomic) NSMutableDictionary* outboundQueue;
@@ -108,7 +111,7 @@
         // Create a socket to each destination we don't already have one to
         else {
           GCDAsyncSocket* sock = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
-          [sock connectToHost:host onPort:[port intValue] error:nil];
+          [sock connectToHost:host onPort:[port shortValue] error:nil];
           [newDestinations addObject:sock];    
           destsCreated++;
         }
@@ -151,7 +154,7 @@
 {
   [self.destinations removeAllObjects];
   GCDAsyncSocket* sock = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
-  [sock connectToHost:host onPort:port error:nil];
+  [sock connectToHost:host onPort:(short)port error:nil];
   [self.destinations addObject:sock];  
   @synchronized(self.outboundQueue) {
     [self.outboundQueue removeAllObjects];
@@ -215,7 +218,7 @@
   if (!_receiveSocket) {
     _receiveSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.delegateQueue socketQueue:self.socketQueue];
     NSError* error;
-    [_receiveSocket acceptOnPort:rand() error:&error];
+    [_receiveSocket acceptOnPort:(short)rand() error:&error];
     if (error) {
       NSLog(@"Error binding socket: %@", error);
       _receiveSocket = nil;
@@ -275,39 +278,40 @@
 -(void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
   if (!self.segment) {
-    int headerLength = sizeof(int);
+    int headerLength = HEADER_LENGTH;
     int newlength;
     [data getBytes:&newlength length:headerLength];
     self.segmentLength = 0;
     self.segment = [[NSMutableData alloc] initWithLength:newlength];
     NSLog(@"Reading new chunk of length %d", newlength);
-    [self socket:sock didReadData:[data subdataWithRange:NSMakeRange(headerLength, [data length] - headerLength)] withTag:tag];
+    if ([data length] > HEADER_LENGTH) {
+      [self socket:sock didReadData:[data subdataWithRange:NSMakeRange(headerLength, [data length] - headerLength)] withTag:tag];
+    } else {
+      [sock readDataToLength:UPDATE_LENGTH withTimeout:1000 buffer:self.segment bufferOffset:0 tag:random()];
+    }
     return;
   }
 
   BOOL done = NO;
-  int len = [data length];
-  NSLog(@"Read State: %d/%d",self.segmentLength,[self.segment length]);
+  unsigned int len = [data length];
   if (self.segmentLength + len >= [self.segment length]) {
     done = YES;
     len = [self.segment length] - self.segmentLength;
   }
-  [self.segment replaceBytesInRange:NSMakeRange(self.segmentLength, len) withBytes:[data bytes]];
   self.segmentLength += len;
   
   if (done) {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRSegmentReady" object:self];
-    if (len < [data length]) {
-      NSLog(@"De-synced D: [%d < %d]", len, [data length]);
-    }
+    [sock readDataToLength:HEADER_LENGTH withTimeout:1000 tag:random()];
+    return;
   }
-  
-  int next = 1500;
-  if (!done && [self.segment length] - self.segmentLength < next)
+
+  unsigned int next = UPDATE_LENGTH;
+  if ([self.segment length] - self.segmentLength < next)
   {
     next = [self.segment length] - self.segmentLength;
   }
-  [sock readDataToLength:next withTimeout:1000 tag:random()];
+  [sock readDataToLength:next withTimeout:1000 buffer:self.segment bufferOffset:self.segmentLength tag:random()];
 }
 
 - (void)socket:(GCDAsyncSocket *)sock willDisconnectWithError:(NSError *)err
@@ -352,7 +356,7 @@
 #endif
 
   NSLog(@"Connected to %@", host);
-  [sock readDataToLength:1500 withTimeout:1000 tag:random()];
+  [sock readDataToLength:HEADER_LENGTH withTimeout:1000 tag:random()];
   [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRRemoteConnected" object:self];
 }
 

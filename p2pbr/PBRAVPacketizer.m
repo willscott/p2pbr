@@ -33,7 +33,7 @@
 @synthesize active = _active;
 @synthesize socket = _socket;
 
-#define SEGMENT_LENGTH 1
+#define SEGMENT_LENGTH 0.5
 
 -(void) recordAudio:(AVCaptureAudioDataOutput*)audio andVideo:(AVCaptureVideoDataOutput*)video
 {
