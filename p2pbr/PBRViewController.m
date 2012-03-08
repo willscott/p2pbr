@@ -30,7 +30,8 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
 @implementation PBRViewController
 @synthesize activityIndicator = _activityIndicator;
-@synthesize preview = _preview;
+@synthesize localView = _localView;
+@synthesize remoteView = _remoteView;
 
 @synthesize recordView = _recordView;
 @synthesize playView = _playView;
@@ -54,7 +55,8 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 - (void)viewDidUnload
 {
   [self setActivityIndicator:nil];
-  [self setPreview:nil];
+  [self setLocalView:nil];
+  [self setRemoteView:nil];
   [super viewDidUnload];
 }
 
@@ -95,13 +97,22 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [self didRotate:nil];
   [super viewDidAppear:animated];
   [self.activityIndicator startAnimating];
-  [self playMode];
+  [self performSegueWithIdentifier:@"ConnectDialog" sender:self];
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+  if ([[segue identifier] isEqualToString:@"ConnectDialog"]) {
+    [segue.destinationViewController setNetwork:self.network];
+  }
 }
 
 - (void)recordMode
 {
+  /*
   [self.player playTo:nil];
   [self.playView removeFromSuperlayer];
+   */
 
   AVCaptureDeviceInput *newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontFacingCamera] error:nil];
   AVCaptureDeviceInput *newAudioInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self microphone] error:nil];
@@ -115,8 +126,8 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   
   // The local preview view.
   self.recordView = [[AVCaptureVideoPreviewLayer alloc] initWithSession:newCaptureSession];
-  CALayer *viewLayer = [self.preview layer];
-  [viewLayer setMasksToBounds:YES];
+  CALayer *recordLayer = [self.localView layer];
+  [recordLayer setMasksToBounds:YES];
   
   // Connect output stream delegates.
   AVCaptureVideoDataOutput* videoOutput = [[AVCaptureVideoDataOutput alloc] init];
@@ -127,7 +138,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
   [self.packetizer recordAudio:audioOutput andVideo:videoOutput];
   
-  [self.recordView setFrame:[self.preview bounds]];
+  [self.recordView setFrame:[self.localView bounds]];
   
   [self.recordView setVideoGravity:AVLayerVideoGravityResizeAspect];
   if([[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeRight) {
@@ -136,7 +147,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
     [self.recordView setOrientation:AVCaptureVideoOrientationLandscapeRight];
   }
   
-  [viewLayer insertSublayer:self.recordView below:[[viewLayer sublayers] objectAtIndex:0]];
+  [recordLayer insertSublayer:self.recordView below:[[recordLayer sublayers] objectAtIndex:0]];
   
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [newCaptureSession startRunning];
@@ -145,9 +156,11 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
 - (void)playMode
 {
+  /*
   [self.recordView removeFromSuperlayer];
   [[self.recordView session] stopRunning];
   self.recordView = nil;
+  */
   
   NSURL* loadingUrl = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"loading" ofType:@"m4v"]];
   AVPlayer* player = [[AVPlayer alloc] initWithURL:loadingUrl];
@@ -156,9 +169,9 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [self.player playTo:player];
   self.playView = [[AVPlayerLayer alloc] init];
   [self.playView setPlayer:player];
-  [self.playView setFrame:[self.preview bounds]];
+  [self.remoteView setFrame:[self.remoteView bounds]];
   [self.playView setVideoGravity:AVLayerVideoGravityResizeAspect];
-  CALayer *viewLayer = [self.preview layer];
+  CALayer *viewLayer = [self.remoteView layer];
   [viewLayer setMasksToBounds:YES];
   [viewLayer insertSublayer:self.playView below:[[viewLayer sublayers] objectAtIndex:0]];
   [player play];

@@ -7,6 +7,8 @@
 //
 
 #import "PBRNetworkManager.h"
+#import "PortMapper.h"
+
 #define DEBUG_STATIC 1
 #define DEBUG_STATIC_SOURCE "128.208.7.219"
 //#define DEBUG_STATIC_SOURCE "172.28.7.55"
@@ -46,11 +48,11 @@
   self = [self init];
   if (self) {
     self.server = server;
-      [self pollServer];
-  }
 #if !DEBUG_STATIC
-  NSTimer* pollTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(pollServer) userInfo:nil repeats:YES];
+    [self pollServer];
+    NSTimer* pollTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(pollServer) userInfo:nil repeats:YES];
 #endif
+  }
   return self;
 }
 
@@ -64,22 +66,7 @@
     [req setHTTPMethod:@"POST"];
     [req setHTTPBody:payload];
  
-#if DEBUG_STATIC
-  if (self.mode) {
-    [self.destinations removeAllObjects];
-    GCDAsyncSocket* sock = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
-    [sock connectToHost:@DEBUG_STATIC_DEST onPort:8080 error:nil];
-    [self.destinations addObject:sock];  
-    @synchronized(self.outboundQueue) {
-      [self.outboundQueue removeAllObjects];
-    }
-  } else {
-    [self.sourceHosts removeAllObjects];
-    [self.sourceHosts addObject:@DEBUG_STATIC_SOURCE];
-  }
-    
-#else
-    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+  NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     [NSURLConnection sendAsynchronousRequest:req queue:queue completionHandler:^(NSURLResponse* resp, NSData* data, NSError* err) {
       if (err) {
         NSLog(@"Failed to connect to server: %@", err);
@@ -155,10 +142,20 @@
       NSLog(@"Destinations (%d from server): of %d old sockets, retained %d and closed %d. Created %d new.  Loaded %d sources from server.",
             destsGiven, oldDestCount, destsRetained, destsClosed, destsCreated, sourcesGiven);
     }];
-#endif
   
   // Clear out partial transfers.
   self.segment = nil;
+}
+
+-(void) connectTo:(NSString*)host onPort:(NSInteger)port
+{
+  [self.destinations removeAllObjects];
+  GCDAsyncSocket* sock = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.socketQueue];
+  [sock connectToHost:host onPort:port error:nil];
+  [self.destinations addObject:sock];  
+  @synchronized(self.outboundQueue) {
+    [self.outboundQueue removeAllObjects];
+  }
 }
 
 -(void) sendData:(NSData *)data andThen:(void (^)(BOOL success))block
@@ -218,11 +215,7 @@
   if (!_receiveSocket) {
     _receiveSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:self.delegateQueue socketQueue:self.socketQueue];
     NSError* error;
-#ifdef DEBUG_STATIC
-    [_receiveSocket acceptOnPort:8080 error:&error];
-#else
     [_receiveSocket acceptOnPort:rand() error:&error];
-#endif
     if (error) {
       NSLog(@"Error binding socket: %@", error);
       _receiveSocket = nil;
@@ -230,6 +223,12 @@
   }
   return _receiveSocket;
 }
+
+-(NSString*)receiveAddress
+{
+  return [PortMapper localAddress];
+}
+
 
 -(NSMutableDictionary*)outboundQueue
 {
@@ -337,27 +336,30 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
+#if !DEBUG_STATIC
   if ([self.sourceSockets containsObject:sock]) {
     if (![self.sourceHosts containsObject:host]) {
       NSLog(@"Unexpected source connection from %@. Should probably stop this.", host);
-    } else {
-      NSLog(@"Got connection from %@", host);
-      [sock readDataToLength:1500 withTimeout:1000 tag:random()];
+      return;
     }
+  } else {
+    NSLog(@"Unexpected connection from non-source socket. %@", host);
+    return;
   }
+#endif
+
+  NSLog(@"Connected to %@", host);
+  [sock readDataToLength:1500 withTimeout:1000 tag:random()];
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRRemoteConnected" object:self];
 }
 
 - (GCDAsyncSocket*)haveSocketOpenToHost:(NSString*)host onPort:(NSNumber*)port
 {
-    for (GCDAsyncSocket* socket in self.destinations) {
-        NSLog(@"(%@ != %@) and/or (%d != %d)", host, [socket connectedHost], [port unsignedShortValue], [socket connectedPort]);
-        if ([host isEqualToString:[socket connectedHost]] && ([port unsignedShortValue] == [socket connectedPort])) {
-            return socket;
-        }
-        
-    }
-    return nil;
-    
+  return [[self.destinations 
+                       filteredArrayUsingPredicate:[NSPredicate 
+                                                    predicateWithBlock:^BOOL(GCDAsyncSocket* sock, NSDictionary *bindings) {
+    return [host isEqualToString:[sock connectedHost]] && [port unsignedShortValue] == [sock connectedPort];
+  }]] lastObject];
 }
               
 - (BOOL)serverDataFormatIsCorrect:(id)parsed

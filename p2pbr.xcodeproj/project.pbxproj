@@ -30,6 +30,8 @@
 		934465E514D8FA7A007C028A /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E414D8FA7A007C028A /* CFNetwork.framework */; };
 		934465E614D8FA99007C028A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 934465E214D8F9B3007C028A /* Security.framework */; };
 		935E0A55150167EE00BC19E9 /* AVAssetWriter+compactMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 935E0A54150167EE00BC19E9 /* AVAssetWriter+compactMetadata.m */; };
+		936DA74C15054B80002FDB7E /* PBRConnectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 936DA74B15054B80002FDB7E /* PBRConnectViewController.m */; };
+		93893EB71505722E007E8C6B /* PortMapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 93893EB61505722E007E8C6B /* PortMapper.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		93C5E7DD14EAD9B400D3A953 /* PBRAVPacketizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E7DC14EAD9B400D3A953 /* PBRAVPacketizer.m */; };
 		93C5E7E014EAEA0900D3A953 /* PBRNetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 93C5E7DF14EAEA0900D3A953 /* PBRNetworkManager.m */; };
 		93C5E7E214EB1CEB00D3A953 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C5E7E114EB1CEB00D3A953 /* MediaPlayer.framework */; };
@@ -83,6 +85,10 @@
 		934465E414D8FA7A007C028A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		935E0A53150167EE00BC19E9 /* AVAssetWriter+compactMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVAssetWriter+compactMetadata.h"; sourceTree = "<group>"; };
 		935E0A54150167EE00BC19E9 /* AVAssetWriter+compactMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVAssetWriter+compactMetadata.m"; sourceTree = "<group>"; };
+		936DA74A15054B80002FDB7E /* PBRConnectViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRConnectViewController.h; sourceTree = "<group>"; };
+		936DA74B15054B80002FDB7E /* PBRConnectViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRConnectViewController.m; sourceTree = "<group>"; };
+		93893EB51505722E007E8C6B /* PortMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PortMapper.h; path = PortMapper/PortMapper.h; sourceTree = "<group>"; };
+		93893EB61505722E007E8C6B /* PortMapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PortMapper.m; path = PortMapper/PortMapper.m; sourceTree = "<group>"; };
 		93C5E7DB14EAD9B400D3A953 /* PBRAVPacketizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRAVPacketizer.h; sourceTree = "<group>"; };
 		93C5E7DC14EAD9B400D3A953 /* PBRAVPacketizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRAVPacketizer.m; sourceTree = "<group>"; };
 		93C5E7DE14EAEA0900D3A953 /* PBRNetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRNetworkManager.h; sourceTree = "<group>"; };
@@ -130,6 +136,7 @@
 		9344658614D89EBF007C028A = {
 			isa = PBXGroup;
 			children = (
+				93893EB915057237007E8C6B /* PortMapper */,
 				936E489C14E084900021A3AF /* CococaAsyncSocket */,
 				9344659B14D89EBF007C028A /* p2pbr */,
 				934465BC14D89EBF007C028A /* p2pbrTests */,
@@ -172,6 +179,8 @@
 				934465A514D89EBF007C028A /* PBRAppDelegate.m */,
 				934465A714D89EBF007C028A /* MainStoryboard_iPhone.storyboard */,
 				934465AA14D89EBF007C028A /* MainStoryboard_iPad.storyboard */,
+				936DA74A15054B80002FDB7E /* PBRConnectViewController.h */,
+				936DA74B15054B80002FDB7E /* PBRConnectViewController.m */,
 				934465AD14D89EBF007C028A /* PBRViewController.h */,
 				934465AE14D89EBF007C028A /* PBRViewController.m */,
 				93C5E7E314EB41F000D3A953 /* PBRAVPlayer.h */,
@@ -228,6 +237,15 @@
 				931B018F14EDBD6B00326403 /* GCDAsyncUdpSocket.m */,
 			);
 			name = CococaAsyncSocket;
+			sourceTree = "<group>";
+		};
+		93893EB915057237007E8C6B /* PortMapper */ = {
+			isa = PBXGroup;
+			children = (
+				93893EB51505722E007E8C6B /* PortMapper.h */,
+				93893EB61505722E007E8C6B /* PortMapper.m */,
+			);
+			name = PortMapper;
 			sourceTree = "<group>";
 		};
 		93F9CC0F1500086400144F8D /* Resources */ = {
@@ -360,6 +378,8 @@
 				931B019014EDBD6B00326403 /* GCDAsyncSocket.m in Sources */,
 				931B019114EDBD6B00326403 /* GCDAsyncUdpSocket.m in Sources */,
 				935E0A55150167EE00BC19E9 /* AVAssetWriter+compactMetadata.m in Sources */,
+				936DA74C15054B80002FDB7E /* PBRConnectViewController.m in Sources */,
+				93893EB71505722E007E8C6B /* PortMapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

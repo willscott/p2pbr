@@ -20,7 +20,8 @@
 @property (strong,nonatomic) NSMutableData* segment;
 
 -(id) initWithServer:(NSURL*)server;
+-(void) connectTo:(NSString*)host onPort:(NSInteger)port;
 -(void) sendData:(NSData*)data andThen:(void (^)(BOOL success))block;
-
+-(NSString*)receiveAddress;
 
 @end
