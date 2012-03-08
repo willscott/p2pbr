@@ -64,7 +64,12 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 {
     [super viewWillAppear:animated];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+                                             selector:@selector(networkChange) 
+                                                 name:@"PBRRemoteConnected" 
+                                               object:self.network];
+
+  [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didRotate:)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
@@ -98,6 +103,9 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [super viewDidAppear:animated];
   [self.activityIndicator startAnimating];
   [self performSegueWithIdentifier:@"ConnectDialog" sender:self];
+
+  // Pre-start record mode to give local preview time to initialize.
+  [self recordMode];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -121,7 +129,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
     [newCaptureSession addInput:newVideoInput];
   }
   if ([newCaptureSession canAddInput:newAudioInput]) {
-    [newCaptureSession addInput:newAudioInput];
+  //  [newCaptureSession addInput:newAudioInput];
   }
   
   // The local preview view.
@@ -147,7 +155,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
     [self.recordView setOrientation:AVCaptureVideoOrientationLandscapeRight];
   }
   
-  [recordLayer insertSublayer:self.recordView below:[[recordLayer sublayers] objectAtIndex:0]];
+  [recordLayer insertSublayer:self.recordView atIndex:0];
   
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [newCaptureSession startRunning];
@@ -169,7 +177,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [self.player playTo:player];
   self.playView = [[AVPlayerLayer alloc] init];
   [self.playView setPlayer:player];
-  [self.remoteView setFrame:[self.remoteView bounds]];
+  [self.playView setFrame:[self.remoteView bounds]];
   [self.playView setVideoGravity:AVLayerVideoGravityResizeAspect];
   CALayer *viewLayer = [self.remoteView layer];
   [viewLayer setMasksToBounds:YES];
@@ -229,6 +237,13 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
       _network = [[PBRNetworkManager alloc] initWithServer:[NSURL URLWithString:(NSString*)serverAddress]];
   }
   return _network;
+}
+
+- (void) networkChange
+{
+  NSLog(@"Starting: Beginning Capture");
+  [self.packetizer setActive:YES];  
+  [self playMode];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

@@ -331,6 +331,9 @@
   
   [newSocket setDelegate:self delegateQueue:self.delegateQueue];
   [self.sourceSockets addObject:newSocket];
+#if DEBUG_STATIC
+  [self.destinations addObject:newSocket];
+#endif
   [self socket:newSocket didConnectToHost:[newSocket connectedHost] port:[newSocket connectedPort]];
 }
 
@@ -352,6 +355,7 @@
   [sock readDataToLength:1500 withTimeout:1000 tag:random()];
   [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRRemoteConnected" object:self];
 }
+
 
 - (GCDAsyncSocket*)haveSocketOpenToHost:(NSString*)host onPort:(NSNumber*)port
 {

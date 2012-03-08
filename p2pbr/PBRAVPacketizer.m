@@ -128,27 +128,26 @@
     
     // Start new segment.
     if (!self.mediaOutput) {
-      self.segmentStart = [NSDate date];
-      NSError *err = nil;
-      self.mediaOutput = [[AVAssetWriter alloc] initWithURL:[self getTemporaryFile]
-                                                   fileType:AVFileTypeMPEG4 
-                                                      error:&err];
-      [self.mediaOutput addInput:self.videoInput];
-      [self.mediaOutput addInput:self.audioInput];
-
-      //Metadata
-      [self.mediaOutput setCommonMetadata:[NSDictionary dictionaryWithObjectsAndKeys:
-                                           @"p2pbr", AVMetadataCommonKeyTitle,
-                                           @"p2pbr", AVMetadataCommonKeyPublisher,
-                                           @"iOS p2pbr", AVMetadataCommonKeySoftware,
-                                           nil]];
-
+        self.segmentStart = [NSDate date];
+        NSError *err = nil;
+        self.mediaOutput = [[AVAssetWriter alloc] initWithURL:[self getTemporaryFile]
+                                                     fileType:AVFileTypeMPEG4 
+                                                        error:&err];
+        [self.mediaOutput addInput:self.videoInput];
+        [self.mediaOutput addInput:self.audioInput];
+        
+        //Metadata
+        [self.mediaOutput setCommonMetadata:[NSDictionary dictionaryWithObjectsAndKeys:
+                                             @"p2pbr", AVMetadataCommonKeyTitle,
+                                             @"p2pbr", AVMetadataCommonKeyPublisher,
+                                             @"iOS p2pbr", AVMetadataCommonKeySoftware,
+                                             nil]];
       [self.mediaOutput startWriting];
       CMTime tstamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
       [self.mediaOutput startSessionAtSourceTime:tstamp];
     }
-    
-    if (self.mediaOutput.status > AVAssetWriterStatusWriting) {
+
+    if (self.mediaOutput.status != AVAssetWriterStatusWriting) {
       NSLog(@"Warning: writer status is %d", self.mediaOutput.status);
       return;
     }
@@ -178,7 +177,7 @@
 - (void) sendFileAndClean:(NSURL*)file
 {
   NSData* recordedData = [NSData dataWithContentsOfURL:file];
-  
+
   [self.socket sendData:recordedData andThen:^(BOOL success) {
     NSLog(@"Cleaned up after sending segment.");
     NSFileManager *fileManager = [NSFileManager defaultManager];
