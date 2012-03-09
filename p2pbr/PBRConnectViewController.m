@@ -7,6 +7,7 @@
 //
 
 #import "PBRConnectViewController.h"
+#import "PortMapper.h"
 
 @interface PBRConnectViewController ()
 
@@ -42,7 +43,11 @@
 - (void)viewDidAppear:(BOOL)animated
 {
   UITableViewCell* ip = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-  ip.detailTextLabel.text = [self.network receiveAddress];
+  if ([PortMapper localAddressIsPrivate]) {
+    ip.detailTextLabel.text = [NSString stringWithFormat:@"%@ ⚠",[self.network receiveAddress]];    
+  } else {
+    ip.detailTextLabel.text = [self.network receiveAddress];
+  }
   [ip layoutSubviews];
 
   UITableViewCell* port = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
@@ -59,7 +64,12 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
+  // iPhone popup is in portrait orientation, iPad is in landscape.
+  if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);    
+  } else {
     return (interfaceOrientation != UIInterfaceOrientationPortrait);
+  }
 }
 
 #pragma mark - Table view data source

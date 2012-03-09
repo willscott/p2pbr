@@ -13,11 +13,14 @@
 @property (weak, nonatomic) AVPlayer* output;
 @property (strong, nonatomic) NSMutableOrderedSet* playQueue;
 @property (strong, nonatomic) NSDictionary* playingItem;
+@property (strong, nonatomic) NSDate* playingItemStartTime;
 
 -(void)onFileReceivedFromSource:(NSNotification*)note;
 -(NSURL*) getTemporaryFile;
 
 -(void)playbackEnd:(NSNotification*)note;
+
+#define JITTER 0.1
 @end
 
 @implementation PBRAVPlayer
@@ -27,6 +30,7 @@
 @synthesize output = _output;
 @synthesize playQueue = _playQueue;
 @synthesize playingItem = _playingItem;
+@synthesize playingItemStartTime = _playingItemStartTime;
 
 -(void)playTo:(AVPlayer*)dest
 {
@@ -98,8 +102,41 @@
   } copy]];
 }
 
+-(void) advance
+{
+  NSDictionary* nextItem;
+  @synchronized(self.playQueue) {
+    nextItem = [self.playQueue objectAtIndex:0];
+    [self.playQueue removeObject:nextItem];
+  }
+  AVPlayerItem* playerItem = [AVPlayerItem playerItemWithAsset:[nextItem objectForKey:@"asset"]];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(playbackEnd:) 
+                                               name:AVPlayerItemDidPlayToEndTimeNotification 
+                                             object:playerItem];
+  
+  [[NSNotificationCenter defaultCenter] removeObserver:self 
+                                                  name:AVPlayerItemDidPlayToEndTimeNotification 
+                                                object:self.output.currentItem];
+  
+  [self.output replaceCurrentItemWithPlayerItem:playerItem];
+  [self.output seekToTime:CMTimeMake(0, 1)];
+  self.output.rate = 1.0;
+  [self.output play];
+  
+  if (self.playingItem) {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:[[self.playingItem objectForKey:@"url"] path]]) {
+      [fileManager removeItemAtURL:[self.playingItem objectForKey:@"url"] error: nil];
+    }
+  } 
+  
+  self.playingItemStartTime = [NSDate date];
+  self.playingItem = nextItem;
 
--(void)playbackEnd:(NSNotification*)note
+}
+
+-(void) playbackEnd:(NSNotification*)note
 {
   NSLog(@"Playback End.");
   if ([self.playQueue count] == 0) {
@@ -111,33 +148,7 @@
     if ([self.playQueue count] > 1) {
       NSLog(@"Failing to keep up with queue.");
     }
-    NSDictionary* nextItem;
-    @synchronized(self.playQueue) {
-      nextItem = [self.playQueue objectAtIndex:0];
-      [self.playQueue removeObject:nextItem];
-    }
-    AVPlayerItem* playerItem = [AVPlayerItem playerItemWithAsset:[nextItem objectForKey:@"asset"]];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(playbackEnd:) 
-                                                 name:AVPlayerItemDidPlayToEndTimeNotification 
-                                               object:playerItem];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:AVPlayerItemDidPlayToEndTimeNotification 
-                                                  object:self.output.currentItem];
-
-    [self.output replaceCurrentItemWithPlayerItem:playerItem];
-    [self.output seekToTime:CMTimeMake(0, 1)];
-    [self.output play];
-
-    if (self.playingItem) {
-      NSFileManager *fileManager = [NSFileManager defaultManager];
-      if ([fileManager fileExistsAtPath:[[self.playingItem objectForKey:@"url"] path]]) {
-        [fileManager removeItemAtURL:[self.playingItem objectForKey:@"url"] error: nil];
-      }
-    } 
-
-    self.playingItem = nextItem;
+    [self advance];
   }
 }
 
