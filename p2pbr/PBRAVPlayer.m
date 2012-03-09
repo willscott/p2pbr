@@ -108,6 +108,9 @@
     [self.output play];
     return;
   } else {
+    if ([self.playQueue count] > 1) {
+      NSLog(@"Failing to keep up with queue.");
+    }
     NSDictionary* nextItem;
     @synchronized(self.playQueue) {
       nextItem = [self.playQueue objectAtIndex:0];

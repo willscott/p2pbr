@@ -282,6 +282,12 @@
     int newlength;
     [data getBytes:&newlength length:headerLength];
     self.segmentLength = 0;
+    if (newlength == 0) {
+      NSLog(@"Skipping over empty chunk.");
+      [sock readDataToLength:HEADER_LENGTH withTimeout:1000 tag:random()];
+      return;
+    }
+
     self.segment = [[NSMutableData alloc] initWithLength:newlength];
     NSLog(@"Reading new chunk of length %d", newlength);
     if ([data length] > HEADER_LENGTH) {
