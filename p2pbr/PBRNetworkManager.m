@@ -299,6 +299,7 @@
     len = [self.segment length] - self.segmentLength;
   }
   self.segmentLength += len;
+  NSLog(@".");
   
   if (done) {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRSegmentReady" object:self];

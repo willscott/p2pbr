@@ -63,13 +63,12 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
     [[NSNotificationCenter defaultCenter] addObserver:self 
                                              selector:@selector(networkChange) 
                                                  name:@"PBRRemoteConnected" 
                                                object:self.network];
 
-  [[NSNotificationCenter defaultCenter] addObserver:self
+    [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didRotate:)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
@@ -102,7 +101,9 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   [self didRotate:nil];
   [super viewDidAppear:animated];
   [self.activityIndicator startAnimating];
-  [self performSegueWithIdentifier:@"ConnectDialog" sender:self];
+  if ([self.network.destinations count] == 0) {
+    [self performSegueWithIdentifier:@"ConnectDialog" sender:self];
+  }
 
   // Pre-start record mode to give local preview time to initialize.
   [self recordMode];
