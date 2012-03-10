@@ -171,8 +171,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   self.recordView = nil;
   */
   
-  NSURL* loadingUrl = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"loading" ofType:@"m4v"]];
-  AVPlayer* player = [[AVPlayer alloc] initWithURL:loadingUrl];
+  AVQueuePlayer* player = [AVQueuePlayer queuePlayerWithItems:[NSArray array]];
 
   // Connect to the player.
   [self.player playTo:player];

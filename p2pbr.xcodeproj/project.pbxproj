@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		931B019014EDBD6B00326403 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 931B018D14EDBD6B00326403 /* GCDAsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		931B019114EDBD6B00326403 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 931B018F14EDBD6B00326403 /* GCDAsyncUdpSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		931B019314EDE08E00326403 /* loading.m4v in Resources */ = {isa = PBXBuildFile; fileRef = 931B019214EDE08E00326403 /* loading.m4v */; };
 		931B019A14EDEF9900326403 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 931B019914EDEF9900326403 /* CoreFoundation.framework */; };
 		9344659614D89EBF007C028A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659514D89EBF007C028A /* UIKit.framework */; };
 		9344659814D89EBF007C028A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9344659714D89EBF007C028A /* Foundation.framework */; };
@@ -57,7 +56,6 @@
 		931B018D14EDBD6B00326403 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = CocoaAsyncSocket/GCD/GCDAsyncSocket.m; sourceTree = "<group>"; };
 		931B018E14EDBD6B00326403 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncUdpSocket.h; path = CocoaAsyncSocket/GCD/GCDAsyncUdpSocket.h; sourceTree = "<group>"; };
 		931B018F14EDBD6B00326403 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncUdpSocket.m; path = CocoaAsyncSocket/GCD/GCDAsyncUdpSocket.m; sourceTree = "<group>"; };
-		931B019214EDE08E00326403 /* loading.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = loading.m4v; sourceTree = "<group>"; };
 		931B019914EDEF9900326403 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		9344659114D89EBF007C028A /* p2pbr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = p2pbr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9344659514D89EBF007C028A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -200,7 +198,6 @@
 			isa = PBXGroup;
 			children = (
 				93F9CC0F1500086400144F8D /* Resources */,
-				931B019214EDE08E00326403 /* loading.m4v */,
 				9344659D14D89EBF007C028A /* p2pbr-Info.plist */,
 				9344659E14D89EBF007C028A /* InfoPlist.strings */,
 				934465A114D89EBF007C028A /* main.m */,
@@ -331,7 +328,6 @@
 				934465A014D89EBF007C028A /* InfoPlist.strings in Resources */,
 				934465A914D89EBF007C028A /* MainStoryboard_iPhone.storyboard in Resources */,
 				934465AC14D89EBF007C028A /* MainStoryboard_iPad.storyboard in Resources */,
-				931B019314EDE08E00326403 /* loading.m4v in Resources */,
 				93F9CC20150008E100144F8D /* Icon@2x.png in Resources */,
 				93F9CC22150008EC00144F8D /* Icon.png in Resources */,
 				93F9CC24150008FA00144F8D /* Icon-72.png in Resources */,

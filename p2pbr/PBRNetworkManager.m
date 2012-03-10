@@ -301,11 +301,14 @@
   BOOL done = NO;
   unsigned int len = [data length];
   if (self.segmentLength + len >= [self.segment length]) {
+    NSLog(@"Chunk Fully Read.");
     done = YES;
     len = [self.segment length] - self.segmentLength;
   }
   self.segmentLength += len;
-  NSLog(@".");
+  if (self.segmentLength % 1000 == 0) {
+    NSLog(@".");
+  }
   
   if (done) {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRSegmentReady" object:self];
