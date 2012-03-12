@@ -11,6 +11,7 @@
 @interface PBRAVPlayer()
 
 @property (weak, nonatomic) AVQueuePlayer* output;
+@property (strong, nonatomic) NSMutableOrderedSet* fileQueue;
 @property (strong, nonatomic) NSMutableOrderedSet* playQueue;
 @property (strong, nonatomic) NSDictionary* playingItem;
 @property (strong, nonatomic) NSDate* playingItemStartTime;
@@ -28,6 +29,7 @@
 @synthesize socket = _socket;
 
 @synthesize output = _output;
+@synthesize fileQueue = _fileQueue;
 @synthesize playQueue = _playQueue;
 @synthesize playingItem = _playingItem;
 @synthesize playingItemStartTime = _playingItemStartTime;
@@ -91,8 +93,22 @@
   NSURL* location = [self getTemporaryFile];
   NSData* segment = [self.socket segment];
   self.socket.segment = nil;
-  [segment writeToURL:location atomically:NO];
   
+  if ([self.output.items count] < 2) {
+    [segment writeToURL:location atomically:NO];
+    [self addLocationToQueue:location fromTime:start];
+  } else if (self.fileQueue.count < 5) {
+    [segment writeToURL:location atomically:NO];
+    @synchronized(self.fileQueue) {
+      [self.fileQueue addObject:[NSDictionary dictionaryWithObjectsAndKeys:location, @"url", start, @"start", nil]];
+    }
+  } else {
+    NSLog(@"Too far behind. Dropping chunk.");    
+  }
+}
+
+-(void) addLocationToQueue:(NSURL*)location fromTime:(NSDate*)start
+{
   AVURLAsset* file = [AVURLAsset assetWithURL:location];
   [file loadValuesAsynchronouslyForKeys:nil completionHandler:[^{
     NSLog(@"Segment ready.");
@@ -103,19 +119,19 @@
       [self.playQueue addObject:dict];
     }
     
-    if ([self.output canInsertItem:item afterItem:nil]) {
-      [self performSelectorOnMainThread:@selector(addItemToPlayer:) withObject:item waitUntilDone:NO];
-    } else {
-      NSLog(@"Couldn't append item to play queue D:");
-    }
-  } copy]];
+    [self performSelectorOnMainThread:@selector(addItemToPlayer:) withObject:item waitUntilDone:NO];
+  } copy]];  
 }
 
 -(void) addItemToPlayer:(AVPlayerItem*) item
 {
-  [self.output insertItem:item afterItem:nil];
-  if (self.output.rate == 0.0) {
-    [self.output play];
+  if ([self.output canInsertItem:item afterItem:nil]) {
+    [self.output insertItem:item afterItem:nil];
+    if (self.output.rate == 0.0) {
+      [self.output play];
+    }
+  } else {
+    NSLog(@"Couldn't append item to play queue D:");
   }
 }
 
@@ -151,6 +167,14 @@
   
   self.playingItemStartTime = [NSDate date];
   self.playingItem = newItem;
+
+  if (self.fileQueue.count) {
+    @synchronized(self.fileQueue) {
+      NSDictionary* file = [self.fileQueue objectAtIndex:0];
+      [self.fileQueue removeObject:file];
+      [self addLocationToQueue:[file objectForKey:@"url"] fromTime:[file objectForKey:@"start"]];
+    }
+  }
 }
 
 -(void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -160,12 +184,21 @@
   [self synchronize];
 }
 
+
 -(NSMutableOrderedSet*) playQueue
 {
   if (!_playQueue) {
     _playQueue = [[NSMutableOrderedSet alloc] initWithCapacity:5];
   }
   return _playQueue;
+}
+
+-(NSMutableOrderedSet*) fileQueue
+{
+  if (!_fileQueue) {
+    _fileQueue = [[NSMutableOrderedSet alloc] initWithCapacity:5];
+  }
+  return _fileQueue;
 }
 
 @end

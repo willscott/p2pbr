@@ -118,14 +118,10 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
 - (void)recordMode
 {
-  /*
-  [self.player playTo:nil];
-  [self.playView removeFromSuperlayer];
-   */
-
   AVCaptureDeviceInput *newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self frontFacingCamera] error:nil];
   AVCaptureDeviceInput *newAudioInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self microphone] error:nil];
   AVCaptureSession *newCaptureSession = [[AVCaptureSession alloc] init];
+  //newCaptureSession.sessionPreset = AVCaptureSessionPresetMedium;
   if ([newCaptureSession canAddInput:newVideoInput]) {
     [newCaptureSession addInput:newVideoInput];
   }
@@ -165,13 +161,8 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
 - (void)playMode
 {
-  /*
-  [self.recordView removeFromSuperlayer];
-  [[self.recordView session] stopRunning];
-  self.recordView = nil;
-  */
-  
   AVQueuePlayer* player = [AVQueuePlayer queuePlayerWithItems:[NSArray array]];
+  
 
   // Connect to the player.
   [self.player playTo:player];

@@ -7,6 +7,8 @@
 //
 
 #import "PBRAppDelegate.h"
+#import <AVFoundation/AVFoundation.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 @implementation PBRAppDelegate
 
@@ -36,9 +38,22 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
-  /*
-   Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-   */
+  NSError* err;
+  if(![[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&err]) {
+    NSLog(@"Error setting Audio Category: %@", err);
+    return;
+  }
+
+  UInt32 mix = YES;
+  OSStatus mixStatus = AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof(mix), &mix);
+  if (mixStatus != 0) {
+    NSLog(@"Error allowing Audio Mixing: %@", mixStatus);
+    return;
+  }
+  
+  if (![[AVAudioSession sharedInstance] setActive: YES error:&err]) {
+    NSLog(@"Error activating Shared Audio Session: %@", err);
+  }
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
