@@ -119,7 +119,9 @@
       [self.playQueue addObject:dict];
     }
     
-    [self performSelectorOnMainThread:@selector(addItemToPlayer:) withObject:item waitUntilDone:NO];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self addItemToPlayer:item];
+    });
   } copy]];  
 }
 

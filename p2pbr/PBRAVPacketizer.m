@@ -173,8 +173,9 @@
     self.mediaOutputNext = nil;   // by the time we get around to the next segment, this should have been
                                   // created anew asynchronously by the following call
     
-    // In another thread, finish writing the newly finished segment to file and then to network
-    [self performSelectorInBackground:@selector(finishWritingFileAndSendAndClean:) withObject:finished];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      [self finishWritingFileAndSendAndClean:finished];
+    });
 
     self.segmentStart = nil;
   }

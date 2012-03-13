@@ -278,9 +278,8 @@
 -(void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
   if (!self.segment) {
-    int headerLength = HEADER_LENGTH;
     int newlength;
-    [data getBytes:&newlength length:headerLength];
+    [data getBytes:&newlength length:HEADER_LENGTH];
     self.segmentLength = 0;
     if (newlength == 0) {
       NSLog(@"Skipping over empty chunk.");
@@ -290,38 +289,30 @@
 
     self.segment = [[NSMutableData alloc] initWithLength:newlength];
     NSLog(@"Reading new chunk of length %d", newlength);
-    if ([data length] > HEADER_LENGTH) {
-      [self socket:sock didReadData:[data subdataWithRange:NSMakeRange(headerLength, [data length] - headerLength)] withTag:tag];
-    } else {
-      [sock readDataToLength:UPDATE_LENGTH withTimeout:1000 buffer:self.segment bufferOffset:0 tag:random()];
-    }
+
+    NSAssert([data length] == HEADER_LENGTH, @"Header and data concatinated.");
+    NSAssert(newlength >= UPDATE_LENGTH, @"Underful chunks unimplemented.");
+    [sock readDataToLength:UPDATE_LENGTH withTimeout:1000 buffer:self.segment bufferOffset:0 tag:random()];
     return;
   }
 
-  BOOL done = NO;
   unsigned int len = [data length];
   if (self.segmentLength + len >= [self.segment length]) {
     NSLog(@"Chunk Fully Read.");
-    done = YES;
-    len = [self.segment length] - self.segmentLength;
-  }
-  self.segmentLength += len;
-  if (self.segmentLength % 1000 == 0) {
-    NSLog(@".");
-  }
-  
-  if (done) {
+    NSAssert(self.segmentLength + len == [self.segment length], @"Dropped beginning of new packet.");
+
     [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRSegmentReady" object:self];
     [sock readDataToLength:HEADER_LENGTH withTimeout:1000 tag:random()];
     return;
   }
 
-  unsigned int next = UPDATE_LENGTH;
-  if ([self.segment length] - self.segmentLength < next)
-  {
-    next = [self.segment length] - self.segmentLength;
+  self.segmentLength += len;
+  if (self.segmentLength % 1000 == 0) {
+    NSLog(@".");
   }
-  [sock readDataToLength:next withTimeout:1000 buffer:self.segment bufferOffset:self.segmentLength tag:random()];
+
+  unsigned int nextRead = MIN(UPDATE_LENGTH, [self.segment length] - self.segmentLength);
+  [sock readDataToLength:nextRead withTimeout:1000 buffer:self.segment bufferOffset:self.segmentLength tag:random()];
 }
 
 - (void)socket:(GCDAsyncSocket *)sock willDisconnectWithError:(NSError *)err
