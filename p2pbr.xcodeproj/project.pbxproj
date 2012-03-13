@@ -507,12 +507,9 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "p2pbr/p2pbr-Prefix.pch";
-				HEADER_SEARCH_PATHS = "libAV/libAV/compiled/armv7/include/**";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "p2pbr/p2pbr-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/libAV/libAV/compiled/fat/lib\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = p2pbr;
 				WRAPPER_EXTENSION = app;
 			};
@@ -523,12 +520,9 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "p2pbr/p2pbr-Prefix.pch";
-				HEADER_SEARCH_PATHS = "libAV/libAV/compiled/armv7/include/**";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "p2pbr/p2pbr-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/libAV/libAV/compiled/fat/lib\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = p2pbr;
 				WRAPPER_EXTENSION = app;
 			};

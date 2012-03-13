@@ -307,11 +307,8 @@
   }
 
   self.segmentLength += len;
-  if (self.segmentLength % 1000 == 0) {
-    NSLog(@".");
-  }
 
-  unsigned int nextRead = MIN(UPDATE_LENGTH, [self.segment length] - self.segmentLength);
+  unsigned int nextRead = MIN((unsigned)UPDATE_LENGTH, [self.segment length] - self.segmentLength);
   [sock readDataToLength:nextRead withTimeout:1000 buffer:self.segment bufferOffset:self.segmentLength tag:random()];
 }
 

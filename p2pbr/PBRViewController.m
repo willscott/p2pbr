@@ -105,8 +105,10 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
     [self performSegueWithIdentifier:@"ConnectDialog" sender:self];
   }
 
-  // Pre-start record mode to give local preview time to initialize.
-  [self recordMode];
+  if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+    // Pre-start record mode to give local preview time to initialize.
+    [self recordMode];
+  }
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -233,6 +235,9 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 - (void) networkChange
 {
   NSLog(@"Starting: Beginning Capture");
+  if (!self.recordView) {
+    [self recordMode];
+  }
   [self.packetizer setActive:YES];  
   [self playMode];
 }
