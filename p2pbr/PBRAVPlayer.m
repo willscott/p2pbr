@@ -11,7 +11,6 @@
 @interface PBRAVPlayer()
 
 @property (weak, nonatomic) AVQueuePlayer* output;
-@property (strong, nonatomic) NSMutableOrderedSet* fileQueue;
 @property (strong, nonatomic) NSMutableOrderedSet* playQueue;
 @property (strong, nonatomic) NSDictionary* playingItem;
 @property (strong, nonatomic) NSDate* playingItemStartTime;
@@ -29,7 +28,6 @@
 @synthesize socket = _socket;
 
 @synthesize output = _output;
-@synthesize fileQueue = _fileQueue;
 @synthesize playQueue = _playQueue;
 @synthesize playingItem = _playingItem;
 @synthesize playingItemStartTime = _playingItemStartTime;
@@ -97,10 +95,16 @@
   if ([self.output.items count] < 2) {
     [segment writeToURL:location atomically:NO];
     [self addLocationToQueue:location fromTime:start];
-  } else if (self.fileQueue.count < 5) {
+    if (self.output.rate > 1.0) {
+      NSLog(@"Caught up; rate 1.0");
+      self.output.rate = 0.999;
+    }
+  } else if (self.output.items.count < 4) {
     [segment writeToURL:location atomically:NO];
-    @synchronized(self.fileQueue) {
-      [self.fileQueue addObject:[NSDictionary dictionaryWithObjectsAndKeys:location, @"url", start, @"start", nil]];
+    [self addLocationToQueue:location fromTime:start];
+    if (self.output.rate < 1.25) {
+      NSLog(@"Falling Behind; rate 1.25");
+      self.output.rate = 1.25;
     }
   } else {
     NSLog(@"Too far behind. Dropping chunk.");    
@@ -130,7 +134,7 @@
   if ([self.output canInsertItem:item afterItem:nil]) {
     [self.output insertItem:item afterItem:nil];
     if (self.output.rate == 0.0) {
-      [self.output play];
+      self.output.rate = 0.999;
     }
   } else {
     NSLog(@"Couldn't append item to play queue D:");
@@ -169,14 +173,6 @@
   
   self.playingItemStartTime = [NSDate date];
   self.playingItem = newItem;
-
-  if (self.fileQueue.count) {
-    @synchronized(self.fileQueue) {
-      NSDictionary* file = [self.fileQueue objectAtIndex:0];
-      [self.fileQueue removeObject:file];
-      [self addLocationToQueue:[file objectForKey:@"url"] fromTime:[file objectForKey:@"start"]];
-    }
-  }
 }
 
 -(void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -193,14 +189,6 @@
     _playQueue = [[NSMutableOrderedSet alloc] initWithCapacity:5];
   }
   return _playQueue;
-}
-
--(NSMutableOrderedSet*) fileQueue
-{
-  if (!_fileQueue) {
-    _fileQueue = [[NSMutableOrderedSet alloc] initWithCapacity:5];
-  }
-  return _fileQueue;
 }
 
 @end
