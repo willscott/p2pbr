@@ -166,7 +166,7 @@
       NSLog(@"Warning: switching to next writer with status %d", self.mediaOutputNext.status);
       return;
     }
-    NSLog(@"finished with writer %p in status %d, switching to next writer %p with status %d", finished, finished.status, self.mediaOutputNext, self.mediaOutputNext.status);
+    // NSLog(@"finished with writer %p in status %d, switching to next writer %p with status %d", finished, finished.status, self.mediaOutputNext, self.mediaOutputNext.status);
     self.mediaOutputActive = self.mediaOutputNext;
     self.videoInputActive = self.videoInputNext;
     self.audioInputActive = self.audioInputNext;
@@ -243,16 +243,13 @@
   // new writer: start writing
   // **********
   
-  NSLog(@"About to call finishWriting on writer.  Status: %d, Error: %@", writer.status, writer.error);
   if (![writer finishWriting]) {
     NSLog(@"Unable to finish writing segment output. Status: %d, Error: %@", writer.status, writer.error);
     return;
   }
   
   NSData* recordedData = [NSData dataWithContentsOfURL:writer.outputURL];
-  NSLog(@"Recorded data is %d bytes", [recordedData length]);
   [self.socket sendData:recordedData andThen:^(BOOL success) {
-    NSLog(@"Cleaned up after sending segment.");
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:[writer.outputURL path]]) {
       [fileManager removeItemAtURL:writer.outputURL error: nil];
@@ -283,7 +280,6 @@
     NSLog(@"Warning: next writer status is %d", self.mediaOutputNext.status);
     return;
   }
-  NSLog(@"Done setting up next writer, it is in state writing");
 }
 
 - (AVAssetWriter*) createNewAVAssetWriter {
