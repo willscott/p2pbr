@@ -107,7 +107,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
 
   if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
     // Pre-start record mode to give local preview time to initialize.
-    [self recordMode];
+  //  [self recordMode];
   }
 }
 
@@ -132,20 +132,11 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   }
   
   // The local preview view.
-  self.recordView = [[AVCaptureVideoPreviewLayer alloc] initWithSession:newCaptureSession];
-  CALayer *recordLayer = [self.localView layer];
-  [recordLayer setMasksToBounds:YES];
+  self.recordView = [AVCaptureVideoPreviewLayer layerWithSession:newCaptureSession];
   
-  // Connect output stream delegates.
-  AVCaptureVideoDataOutput* videoOutput = [[AVCaptureVideoDataOutput alloc] init];
-  AVCaptureAudioDataOutput* audioOutput = [[AVCaptureAudioDataOutput alloc] init];  
-
-  [newCaptureSession addOutput:videoOutput];
-  [newCaptureSession addOutput:audioOutput];
-
-  [self.packetizer recordAudio:audioOutput andVideo:videoOutput];
+  [self.packetizer recordFromSession:newCaptureSession];
   
-  [self.recordView setFrame:[self.localView bounds]];
+  self.recordView.frame = self.localView.bounds;
   
   [self.recordView setVideoGravity:AVLayerVideoGravityResizeAspect];
   if([[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeRight) {
@@ -154,10 +145,11 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
     [self.recordView setOrientation:AVCaptureVideoOrientationLandscapeRight];
   }
   
-  [recordLayer insertSublayer:self.recordView atIndex:0];
+  [self.localView.layer addSublayer:self.recordView];
   
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [newCaptureSession startRunning];
+    [self.packetizer setActive:YES];  
   });
 }
 
@@ -238,7 +230,6 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   if (!self.recordView) {
     [self recordMode];
   }
-  [self.packetizer setActive:YES];  
   [self playMode];
 }
 

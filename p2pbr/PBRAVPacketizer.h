@@ -16,6 +16,6 @@
 @property (nonatomic) BOOL active;
 @property (strong, nonatomic) PBRNetworkManager* socket;
 
--(void) recordAudio:(AVCaptureAudioDataOutput*)audio andVideo:(AVCaptureVideoDataOutput*)video;
+-(void) recordFromSession:(AVCaptureSession*)session;
 
 @end

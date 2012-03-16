@@ -24,6 +24,7 @@
 @property (strong, nonatomic) AVAssetWriter* mediaOutputNext;
 
 @property (strong, nonatomic) NSDate* segmentStart;
+@property (strong, nonatomic) AVCaptureSession* session;
 
 -(NSURL*) getTemporaryFile;
 
@@ -44,23 +45,30 @@
 @synthesize mediaOutputNext = _mediaOutputNext;
 
 @synthesize segmentStart = _segmentStart;
+@synthesize session = _session;
 
 @synthesize active = _active;
 @synthesize socket = _socket;
 
 #define SEGMENT_LENGTH 0.5
 
--(void) recordAudio:(AVCaptureAudioDataOutput*)audio andVideo:(AVCaptureVideoDataOutput*)video
+-(void) recordFromSession:(AVCaptureSession *)session
 {
   dispatch_queue_t queue = dispatch_queue_create("MediaProcessQueue", NULL);
 
+  AVCaptureVideoDataOutput* videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+  AVCaptureAudioDataOutput* audioOutput = [[AVCaptureAudioDataOutput alloc] init];  
   
-  [video setSampleBufferDelegate:self queue:queue];
-  [audio setSampleBufferDelegate:self queue:queue];
+  [session addOutput:videoOutput];
+  [session addOutput:audioOutput];
+ 
+  [videoOutput setSampleBufferDelegate:self queue:queue];
+  [audioOutput setSampleBufferDelegate:self queue:queue];
   dispatch_release(queue);
-  
 
-  if (!audio || !video) {
+  self.session = session;
+
+  if (!session) {
     self.videoInputActive = nil;
     self.audioInputActive = nil;
     self.videoInputNext = nil;
