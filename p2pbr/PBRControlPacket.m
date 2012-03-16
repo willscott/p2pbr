@@ -36,8 +36,12 @@ static char* noncestr = "p2pbr!";
     if ([data length] == [PBRControlPacket packetLength]) {
       if (strncmp(noncestr, [data bytes], strlen(noncestr)) == 0)
       {
-        self.length = *(NSUInteger*)([data bytes] + strlen(noncestr));
-        self.stamp = [NSDate dateWithTimeIntervalSince1970:*(NSTimeInterval*)([data bytes] + strlen(noncestr) + sizeof(NSUInteger))];
+        NSUInteger len;
+        bcopy([data bytes] + strlen(noncestr), &len, sizeof(len));
+        self.length = len;
+        NSTimeInterval time;
+        bcopy([data bytes] + strlen(noncestr) + sizeof(len), &time, sizeof(time));
+        self.stamp = [NSDate dateWithTimeIntervalSince1970:time];
       }
     }
   }

@@ -104,11 +104,6 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
   if ([self.network.destinations count] == 0) {
     [self performSegueWithIdentifier:@"ConnectDialog" sender:self];
   }
-
-  if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-    // Pre-start record mode to give local preview time to initialize.
-  //  [self recordMode];
-  }
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
