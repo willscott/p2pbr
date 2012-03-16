@@ -6,10 +6,10 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
+#import "PBRControlPacket.h"
 #import "PBRNetworkManager.h"
 #import "PortMapper.h"
 
-#define HEADER_LENGTH 4
 #define UPDATE_LENGTH 2000
 
 #define DEBUG_STATIC 1
@@ -168,12 +168,11 @@
     [self.outboundQueue setObject:[block copy] forKey:[NSNumber numberWithLong:tag+1]];
   }
   NSLog(@"Requesting write for tag: %ld", tag);
-  int len = [data length];
-  NSData* length = [NSData dataWithBytes:&len length:sizeof(int)];
-  [self.destinations enumerateObjectsUsingBlock:^(GCDAsyncSocket* obj, NSUInteger idx, BOOL *stop) {
-    [obj writeData:length withTimeout:1000 tag:tag];
-    [obj writeData:data withTimeout:1000 tag:tag+1];
-  }];
+  PBRControlPacket* header = [[PBRControlPacket alloc] initWithPayload:data];
+  for (GCDAsyncSocket* dst in self.destinations) {
+    [dst writeData:[header data] withTimeout:1000 tag:tag];
+    [dst writeData:data withTimeout:1000 tag:tag+1];
+  }
 }
 
 -(void) setMode:(BOOL)mode
@@ -278,20 +277,19 @@
 -(void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
   if (!self.segment) {
-    int newlength;
-    [data getBytes:&newlength length:HEADER_LENGTH];
+    PBRControlPacket* header = [[PBRControlPacket alloc] initFromWire:data];
     self.segmentLength = 0;
-    if (newlength == 0) {
+    if (header.length == 0) {
       NSLog(@"Skipping over empty chunk.");
-      [sock readDataToLength:HEADER_LENGTH withTimeout:1000 tag:random()];
+      [sock readDataToLength:[PBRControlPacket packetLength] withTimeout:1000 tag:random()];
       return;
     }
 
-    self.segment = [[NSMutableData alloc] initWithLength:newlength];
-    NSLog(@"Reading new chunk of length %d", newlength);
+    self.segment = [[NSMutableData alloc] initWithLength:header.length];
+    NSLog(@"Reading new chunk of length %d from %@", header.length, header.stamp);
 
-    NSAssert([data length] == HEADER_LENGTH, @"Header and data concatinated.");
-    NSAssert(newlength >= UPDATE_LENGTH, @"Underful chunks unimplemented.");
+    NSAssert([data length] == [PBRControlPacket packetLength], @"Header and data concatinated.");
+    NSAssert(header.length >= UPDATE_LENGTH, @"Underful chunks unimplemented.");
     [sock readDataToLength:UPDATE_LENGTH withTimeout:1000 buffer:self.segment bufferOffset:0 tag:random()];
     return;
   }
@@ -302,7 +300,7 @@
     NSAssert(self.segmentLength + len == [self.segment length], @"Dropped beginning of new packet.");
 
     [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRSegmentReady" object:self];
-    [sock readDataToLength:HEADER_LENGTH withTimeout:1000 tag:random()];
+    [sock readDataToLength:[PBRControlPacket packetLength] withTimeout:1000 tag:random()];
     return;
   }
 
@@ -354,7 +352,7 @@
 #endif
 
   NSLog(@"Connected to %@", host);
-  [sock readDataToLength:HEADER_LENGTH withTimeout:1000 tag:random()];
+  [sock readDataToLength:[PBRControlPacket packetLength] withTimeout:1000 tag:random()];
   [[NSNotificationCenter defaultCenter] postNotificationName:@"PBRRemoteConnected" object:self];
 }
 
