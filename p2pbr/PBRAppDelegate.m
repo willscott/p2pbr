@@ -44,12 +44,7 @@
     return;
   }
 
-  UInt32 mix = YES;
-  OSStatus mixStatus = AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof(mix), &mix);
-  if (mixStatus != 0) {
-    NSLog(@"Error allowing Audio Mixing: %@", mixStatus);
-    return;
-  }
+  // Don't want to specify 'mix with others' because it will disable hardware decode.
   
   if (![[AVAudioSession sharedInstance] setActive: YES error:&err]) {
     NSLog(@"Error activating Shared Audio Session: %@", err);

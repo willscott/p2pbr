@@ -123,7 +123,7 @@ const NSString* serverAddress = @"http://manhattan-1.dyn.cs.washington.edu:8080/
     [newCaptureSession addInput:newVideoInput];
   }
   if ([newCaptureSession canAddInput:newAudioInput]) {
-  //  [newCaptureSession addInput:newAudioInput];
+    [newCaptureSession addInput:newAudioInput];
   }
   
   // The local preview view.
